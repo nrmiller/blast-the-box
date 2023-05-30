@@ -17,9 +17,9 @@ fun main() {
 
     val engine = Engine()
 
-    val window = GameWindow("My Game", 600, 480)
+    val window = GameWindow("My Game", 1280, 720)
 //    window.animator = DefaultAnimator() // todo this doesn't work on MacOS since we need to run on MainThread
-    window.setGLProfile(GLProfile.OPENGL_CORE_PROFILE)
+//    window.setGLProfile(GLProfile.OPENGL_COMPAT_PROFILE)
     window.setGLClientAPI(GLClientAPI.OPENGL_API)
     window.setGLVersion(3, 3)
     window.glEventListener = engine

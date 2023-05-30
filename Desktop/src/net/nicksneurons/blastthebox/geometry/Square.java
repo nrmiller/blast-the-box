@@ -3,7 +3,8 @@ package net.nicksneurons.blastthebox.geometry;
 import miller.opengl.Dimension2d;
 import miller.opengl.Point2d;
 import miller.opengl.Point3d;
-import org.lwjgl.opengl.GL11;
+
+import static org.lwjgl.opengl.GL33.*;
 
 public class Square extends Primitive
 {
@@ -34,7 +35,7 @@ public class Square extends Primitive
 	@Override
 	public int getRenderingMode()
 	{
-		return GL11.GL_TRIANGLES;
+		return GL_TRIANGLES;
 	}
 	
 	@Override
@@ -47,7 +48,6 @@ public class Square extends Primitive
 			(float)(vloc.x), (float)(vloc.y), (float)vloc.z,
 			(float)(vloc.x+dim.width),(float)(vloc.y), (float)vloc.z,
 			(float)(vloc.x+dim.width), (float)(vloc.y+dim.height), (float)vloc.z
-			
 		};
 		return vertices;
 	}

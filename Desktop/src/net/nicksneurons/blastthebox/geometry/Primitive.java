@@ -9,15 +9,23 @@ import miller.opengl.Dimension3d;
 import miller.opengl.Point3d;
 
 import net.nicksneurons.blastthebox.utils.Renderable;
+import org.lwjgl.BufferUtils;
 
-import org.lwjgl.opengl.*;
+import static org.lwjgl.opengl.GL33.*;
 
 public abstract class Primitive implements Renderable
 {
+	public static final int VBO_INDEX = 0;
+	public static final int COLOR_INDEX = 1;
+	public static final int TEXCOORD_INDEX = 2;
+	public static final int NORMAL_INDEX = 3;
+	public static final int ELEMENT_INDEX = 4;
+
+	public int vao;
 	public Point3d loc = new Point3d(0, 0, 0);
 	public Dimension3d scale = new Dimension3d(1, 1, 1);
 	public float yaw = 0, pitch = 0;
-	public int[] id = new int[5];
+	public int[] bufferIds = new int[5];
 	public int textureId = 0;
 	public float[] vertices;
 	public float[] colors;
@@ -25,12 +33,7 @@ public abstract class Primitive implements Renderable
 	public float[] texCoords;
 	public float[] normals;
 	public int renderMode;
-	
-	private FloatBuffer vertexBuffer;
-	private FloatBuffer colorBuffer;
-	private ShortBuffer indexBuffer;
-	private FloatBuffer textureBuffer;
-	private FloatBuffer normalBuffer;
+
 	public int texture;
 	
 	@Override
@@ -87,7 +90,6 @@ public abstract class Primitive implements Renderable
 	@Override
 	public void init()
 	{
-		
 		//get array data
 		vertices = getVertexArray();
 		colors = getColorArray();
@@ -97,90 +99,80 @@ public abstract class Primitive implements Renderable
 		renderMode = getRenderingMode();
 		
 		//create buffers
-		ByteBuffer vbb = ByteBuffer.allocateDirect(vertices.length * 4);
-		vbb.order(ByteOrder.nativeOrder());
-		vertexBuffer = vbb.asFloatBuffer();
+		FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(vertices.length * 4);
 		vertexBuffer.put(vertices);
-		vertexBuffer.position(0);
+		vertexBuffer.flip();
 
-		ByteBuffer cbb = ByteBuffer.allocateDirect(colors.length * 4);
-		cbb.order(ByteOrder.nativeOrder());
-		colorBuffer = cbb.asFloatBuffer();
+		FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(colors.length * 4);
 		colorBuffer.put(colors);
-		colorBuffer.position(0);
-		
-		ByteBuffer ibb = ByteBuffer.allocateDirect(indices.length * 2);
-		ibb.order(ByteOrder.nativeOrder());
-		indexBuffer = ibb.asShortBuffer();
+		colorBuffer.flip();
+
+		ShortBuffer indexBuffer = BufferUtils.createShortBuffer(indices.length * 2);
 		indexBuffer.put(indices);
-		indexBuffer.position(0);
-		
-		ByteBuffer tbb = ByteBuffer.allocateDirect(texCoords.length * 4);
-		tbb.order(ByteOrder.nativeOrder());
-		textureBuffer = tbb.asFloatBuffer();
-		textureBuffer.put(texCoords);
-		textureBuffer.position(0);
-		
-		ByteBuffer nbb = ByteBuffer.allocateDirect(normals.length * 4);
-		nbb.order(ByteOrder.nativeOrder());
-		normalBuffer = nbb.asFloatBuffer();
+		indexBuffer.flip();
+
+		FloatBuffer texCoordBuffer = BufferUtils.createFloatBuffer(texCoords.length * 4);
+		texCoordBuffer.put(texCoords);
+		texCoordBuffer.flip();
+
+		FloatBuffer normalBuffer = BufferUtils.createFloatBuffer(normals.length * 4);
 		normalBuffer.put(normals);
-		normalBuffer.position(0);
-		
-		//create VBOs
-		GL15.glGenBuffers(id);
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, id[0]);
-		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertexBuffer, GL15.GL_DYNAMIC_DRAW);
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, id[1]);
-		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, colorBuffer, GL15.GL_DYNAMIC_DRAW);
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, id[2]);
-		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL15.GL_DYNAMIC_DRAW);
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, id[3]);
-		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, textureBuffer, GL15.GL_DYNAMIC_DRAW);
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, id[4]);
-		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, normalBuffer, GL15.GL_DYNAMIC_DRAW);
-		
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+		normalBuffer.flip();
+
+		vao = glGenVertexArrays();
+		glBindVertexArray(vao);
+
+		glEnableVertexAttribArray(VBO_INDEX);
+		glEnableVertexAttribArray(COLOR_INDEX);
+		glEnableVertexAttribArray(TEXCOORD_INDEX);
+		glEnableVertexAttribArray(NORMAL_INDEX);
+
+		glGenBuffers(bufferIds);
+
+		glBindBuffer(GL_ARRAY_BUFFER, bufferIds[VBO_INDEX]);
+		glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STATIC_DRAW);
+		glVertexAttribPointer(VBO_INDEX, 3, GL_FLOAT, false, 3 * Float.BYTES, 0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, bufferIds[COLOR_INDEX]);
+		glBufferData(GL_ARRAY_BUFFER, colorBuffer, GL_STATIC_DRAW);
+		glVertexAttribPointer(COLOR_INDEX, 3, GL_FLOAT, false, 3 * Float.BYTES, 0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, bufferIds[TEXCOORD_INDEX]);
+		glBufferData(GL_ARRAY_BUFFER, texCoordBuffer, GL_STATIC_DRAW);
+		glVertexAttribPointer(TEXCOORD_INDEX, 2, GL_FLOAT, false, 2 * Float.BYTES, 0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, bufferIds[NORMAL_INDEX]);
+		glBufferData(GL_ARRAY_BUFFER, normalBuffer, GL_STATIC_DRAW);
+		glVertexAttribPointer(NORMAL_INDEX, 3, GL_FLOAT, false, 3 * Float.BYTES, normalBuffer);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferIds[ELEMENT_INDEX]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_STATIC_DRAW);
+
+		glBindVertexArray(0);
 	}
 	
 	@Override
 	public void draw()
 	{
-		GL21.glPushMatrix();
-		
-		GL11.glTranslatef((float)loc.x, (float)loc.y, (float)loc.z);
-		GL11.glRotatef(yaw, 0 , 1, 0);
-		GL11.glRotatef(pitch, 1, 0, 0);
-		GL11.glScalef((float)scale.width, (float)scale.height, (float)scale.depth);
-		
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
-		GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
-		
-		GL13.glClientActiveTexture(GL13.GL_TEXTURE0);
-		
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
-		
-		
-		
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, id[0]);
-		GL11.glVertexPointer(3, GL15.GL_FLOAT, 0, 0);
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, id[2]);
-		GL11.glTexCoordPointer(2, GL15.GL_FLOAT, 0, 0);
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, id[1]);
-		GL11.glDrawElements(renderMode, indices.length, GL15.GL_UNSIGNED_SHORT, 0);
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, id[3]);
-		GL11.glNormalPointer(GL15.GL_FLOAT, 0, 0);
-		
-		GL11.glDisableClientState(GL15.GL_VERTEX_ARRAY);
-		GL11.glDisableClientState(GL15.GL_TEXTURE_COORD_ARRAY);
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-		
-		GL11.glPopMatrix();
+//		glPushMatrix();
+//
+//		glTranslatef((float)loc.x, (float)loc.y, (float)loc.z);
+//		glRotatef(yaw, 0 , 1, 0);
+//		glRotatef(pitch, 1, 0, 0);
+//		glScalef((float)scale.width, (float)scale.height, (float)scale.depth);
+//
+//		glEnable(GL_TEXTURE_2D);
+//		glClientActiveTexture(GL_TEXTURE0);
+//		glBindTexture(GL_TEXTURE_2D, texture);
+
+		glBindVertexArray(vao);
+		glDrawElements(renderMode, indices.length, GL_UNSIGNED_SHORT, 0);
+		glBindVertexArray(0);
+
+//		glDisable(GL_TEXTURE_2D);
+//
+//		glPopMatrix();
+
 	}
 
 	public void setTexture(int id)
