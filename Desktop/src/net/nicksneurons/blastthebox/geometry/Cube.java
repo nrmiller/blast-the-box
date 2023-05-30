@@ -1,9 +1,9 @@
-package net.nicksneurons.blastthebox.tmp.geometry;
+package net.nicksneurons.blastthebox.geometry;
 
 import miller.opengl.Dimension3d;
 import miller.opengl.Point3d;
 
-import com.millerni456.BlastTheBox.utils.Textures;
+//import com.millerni456.BlastTheBox.utils.Textures;
 
 public class Cube extends Box
 {
@@ -20,7 +20,7 @@ public class Cube extends Box
 	public void setHeath(int health)
 	{
 		this.health = health;
-		chooseTexture();
+//		chooseTexture();
 	}
 	public int getHealth()
 	{
@@ -35,14 +35,14 @@ public class Cube extends Box
 			{
 				health = 0;
 			}
-			chooseTexture();
+//			chooseTexture();
 		}
 		
 	}
 	public void setIndestructible(boolean onOff)
 	{
 		indestructible = onOff;
-		chooseTexture();
+//		chooseTexture();
 	}
 	public boolean isIndestructible()
 	{
@@ -68,30 +68,30 @@ public class Cube extends Box
 		}
 	}
 	
-	private void chooseTexture()
-	{
-		if(indestructible)
-		{
-			setTexture(Textures.block_four);
-		}
-		else
-		{
-			switch(health)
-			{
-				case 1:
-					setTexture(Textures.block_one);
-					break;
-				case 2:
-					setTexture(Textures.block_two);
-					break;
-				case 3:
-					setTexture(Textures.block_three);
-					break;
-				default:
-					break;
-			}
-		}
-	}
+//	private void chooseTexture()
+//	{
+//		if(indestructible)
+//		{
+//			setTexture(Textures.block_four);
+//		}
+//		else
+//		{
+//			switch(health)
+//			{
+//				case 1:
+//					setTexture(Textures.block_one);
+//					break;
+//				case 2:
+//					setTexture(Textures.block_two);
+//					break;
+//				case 3:
+//					setTexture(Textures.block_three);
+//					break;
+//				default:
+//					break;
+//			}
+//		}
+//	}
 	
 	public final static int NORMAL = 0, GREEN = 1, BLUE = 2, INDESTRUCTIBLE = 3;
 }

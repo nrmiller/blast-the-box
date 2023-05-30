@@ -1,6 +1,6 @@
-package net.nicksneurons.blastthebox.tmp.geometry;
+package net.nicksneurons.blastthebox.geometry;
 
-import javax.microedition.khronos.opengles.GL10;
+import org.lwjgl.opengl.GL11;
 
 public class Triangle extends Primitive
 {
@@ -15,6 +15,12 @@ public class Triangle extends Primitive
 			0, 0.5f, 0
 		};
 		return vertices;
+	}
+
+	@Override
+	public float[] getColorArray()
+	{
+		return getVertexArray();
 	}
 
 	@Override
@@ -43,7 +49,7 @@ public class Triangle extends Primitive
 	@Override
 	public int getRenderingMode()
 	{
-		return GL10.GL_TRIANGLES;
+		return GL11.GL_TRIANGLES;
 	}
 
 	@Override

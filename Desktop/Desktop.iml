@@ -6,7 +6,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/src/net/nicksneurons/blastthebox/tmp" />
-      <excludeFolder url="file://$MODULE_DIR$/src/net/nicksneurons/blastthebox/geometry" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

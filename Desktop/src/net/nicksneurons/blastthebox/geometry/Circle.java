@@ -1,8 +1,7 @@
-package net.nicksneurons.blastthebox.tmp.geometry;
-
-import javax.microedition.khronos.opengles.GL10;
+package net.nicksneurons.blastthebox.geometry;
 
 import miller.opengl.Point3d;
+import org.lwjgl.opengl.GL11;
 
 public class Circle extends Primitive
 {
@@ -49,7 +48,7 @@ public class Circle extends Primitive
 	@Override
 	public int getRenderingMode()
 	{
-		return GL10.GL_TRIANGLE_FAN;
+		return GL11.GL_TRIANGLE_FAN;
 	}
 
 	@Override
@@ -92,6 +91,12 @@ public class Circle extends Primitive
 			vertices[i+2] = (float) (sin * radius + vertices[2]);
 		}
 		return vertices;
+	}
+
+	@Override
+	public float[] getColorArray()
+	{
+		return getVertexArray();
 	}
 
 	@Override

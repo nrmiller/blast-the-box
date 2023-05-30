@@ -1,9 +1,8 @@
-package net.nicksneurons.blastthebox.tmp.geometry;
-
-import javax.microedition.khronos.opengles.GL10;
+package net.nicksneurons.blastthebox.geometry;
 
 import miller.opengl.Dimension3d;
 import miller.opengl.Point3d;
+import org.lwjgl.opengl.GL11;
 
 public class Box extends Primitive
 {
@@ -62,6 +61,12 @@ public class Box extends Primitive
 				
 		};
 		return vertices;
+	}
+
+	@Override
+	public float[] getColorArray()
+	{
+		return getVertexArray();
 	}
 	
 	@Override
@@ -138,7 +143,7 @@ public class Box extends Primitive
 	@Override
 	public int getRenderingMode()
 	{
-		return GL10.GL_TRIANGLES;
+		return GL11.GL_TRIANGLES;
 	}
 	
 
