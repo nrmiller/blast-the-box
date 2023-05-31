@@ -20,7 +20,7 @@ fun main() {
 
 class HelloWorld() {
 
-    private var program: ShaderProgram // shader program
+    private var program: ShaderProgram
 
     private val square: Square
     private var window: Long = 0
@@ -50,7 +50,6 @@ class HelloWorld() {
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE)
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3)
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3)
-        glfwWindowHint(GLFW_SAMPLES, 4)
 
         window = glfwCreateWindow(1280, 720, "Hello World", NULL, NULL)
         if (window == NULL)
