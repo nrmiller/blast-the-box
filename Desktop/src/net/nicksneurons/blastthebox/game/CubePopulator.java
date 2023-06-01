@@ -1,13 +1,10 @@
-package net.nicksneurons.blastthebox.tmp;
-
-import javax.microedition.khronos.opengles.GL10;
+package net.nicksneurons.blastthebox.game;
 
 import miller.opengl.Dimension2d;
 import miller.opengl.Point3d;
 
-import com.millerni456.BlastTheBox.geometry.Square;
-import com.millerni456.BlastTheBox.utils.S;
-
+import net.nicksneurons.blastthebox.geometry.Square;
+import net.nicksneurons.blastthebox.utils.S;
 
 public class CubePopulator
 {
@@ -136,10 +133,11 @@ public class CubePopulator
 		return r;
 		
 	}
-	
-	public static FloorRow createFloorRow(GL10 gl)
+
+	@Deprecated
+	public static FloorRow createFloorRow()
 	{
-		FloorRow fr = new FloorRow(gl);
+		FloorRow fr = new FloorRow();
 		return fr;
 	}
 }
@@ -149,7 +147,7 @@ class FloorRow
 	public float distance = 50;
 	public Square[] squares;
 	
-	public FloorRow(GL10 gl)
+	public FloorRow()
 	{
 		int numSquares = CubePopulator.FIELD_WIDTH;
 		squares = new Square[numSquares];
@@ -158,20 +156,21 @@ class FloorRow
 		{
 			xLoc = i - CubePopulator.FIELD_WIDTH/2;
 			squares[i] = new Square(new Point3d(xLoc, 0, 1), new Dimension2d(1, 1));
-			squares[i].init(gl);
+			squares[i].init();
 		}
 	}
 	
-	public void render(GL10 gl)
+	public void render()
 	{//draws the cubes.
-		gl.glPushMatrix();
-		gl.glTranslatef(0, 1, -distance);
-		gl.glRotatef(90, 1, 0, 0);
+		// todo replace with a transform
+//		glPushMatrix();
+//		glTranslatef(0, 1, -distance);
+//		glRotatef(90, 1, 0, 0);
 		for(int i = 0; i<squares.length; i++)
 		{
-			squares[i].draw(gl);
+			squares[i].draw();
 		}
-		gl.glPopMatrix();
+//		glPopMatrix();
 	}
 	
 	public void moveCloser(float amount)

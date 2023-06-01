@@ -15,10 +15,7 @@ public abstract class AbstractRenderer implements Renderer
 	
 	public AbstractRenderer()
 	{
-		clearColor[0] = 0.086f;
-		clearColor[1] = 0.173f;
-		clearColor[2] = 0.380f;
-		clearColor[3] = 1;
+		resetClearColor();
 	}
 
 	@Override

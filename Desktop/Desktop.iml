@@ -13,10 +13,10 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Tools" />
-    <orderEntry type="library" name="lwjgl-glfw" level="project" />
-    <orderEntry type="library" name="lwjgl" level="project" />
     <orderEntry type="library" name="lwjgl-opengl" level="project" />
     <orderEntry type="library" name="KotlinJavaRuntime" level="project" />
     <orderEntry type="library" name="joml" level="project" />
+    <orderEntry type="library" name="lwjgl-glfw" level="project" />
+    <orderEntry type="library" name="lwjgl" level="project" />
   </component>
 </module>

@@ -30,6 +30,8 @@ public class Square extends Primitive
 		dim = size;
 		this.X_iterations = X_iterations;
 		this.Y_iterations = Y_iterations;
+
+		init();
 	}
 	
 	@Override

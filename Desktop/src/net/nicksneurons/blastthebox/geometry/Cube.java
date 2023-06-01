@@ -1,16 +1,22 @@
 package net.nicksneurons.blastthebox.geometry;
 
+import miller.opengl.Dimension2d;
 import miller.opengl.Dimension3d;
 import miller.opengl.Point3d;
 
 //import com.millerni456.BlastTheBox.utils.Textures;
 
-public class Cube extends Box
+public class Cube extends Cuboid
 {
 	public int type = 0;
 	public int health = 0;
 	public boolean indestructible = false;
-	
+
+	public Cube()
+	{
+		this(new Point3d(0, 0, 0), 1.0f, false);
+	}
+
 	public Cube(Point3d loc, float size, boolean cubemap)
 	{
 		super(loc, new Dimension3d(size, size, size), cubemap);

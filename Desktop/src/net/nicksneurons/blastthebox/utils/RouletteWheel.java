@@ -1,4 +1,4 @@
-package net.nicksneurons.blastthebox.tmp.utils;
+package net.nicksneurons.blastthebox.utils;
 
 import java.util.Random;
 
@@ -8,13 +8,13 @@ public class RouletteWheel
 	public double[] rarities;
 	public double[] mark_L;
 	public double[] mark_R;
-	
-	public RouletteWheel()
+
+	public RouletteWheel(Object[] items, double[] rarities)
 	{
-		
+		setItems(items, rarities);
 	}
 	
-	public void setItems(Object[] items, double[] rarities)
+	private void setItems(Object[] items, double[] rarities)
 	{
 		this.items = items;
 		this.rarities = rarities;

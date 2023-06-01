@@ -1,8 +1,7 @@
-package net.nicksneurons.blastthebox.tmp.utils;
+package net.nicksneurons.blastthebox.utils;
 
-import javax.microedition.khronos.opengles.GL10;
-
-import android.opengl.GLU;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 /**
 * @author Nick Miller
@@ -15,11 +14,11 @@ import android.opengl.GLU;
 * to allow for automatically updating the view.
 */
 
-public class AndroidGLCamera
+public class Camera
 {
 	//Location variables
 	private float x =0, y =0, z =0;
-	//Focaus Point Location.
+	//Focus Point Location.
 	private float xL =0, yL =0, zL =1;
 	private float renderDistance = 10; //This controls how far away the user is viewing.
 
@@ -27,26 +26,20 @@ public class AndroidGLCamera
 	//radian values for yaw, pitch, and roll.
 	private float yaw = (float)Math.toRadians(-90), pitch =0, roll = (float) Math.toRadians(90); 
 
-	//vector coordinates
-	//this is used for changing the up-vector reference point.
-	private float vectorX = 0;
-	private float vectorY = 1;
-	private float vectorZ = 0;
+	private final Vector3f upVector = new Vector3f(0.0f, 1.0f, 0.0f);
 	
 	//min's/max's for yaw pitch and roll
 	private double pitchMin = -90, pitchMax = -90;
 	private boolean pitchRestricted = false;
 	
-	public AndroidGLCamera()
+	public Camera()
 	{
 		this(0, 0, 0);
 	}
 
-	public AndroidGLCamera(float xLoc, float yLoc, float zLoc)
+	public Camera(float xLoc, float yLoc, float zLoc)
 	{
-		x = xLoc;
-		y = yLoc;
-		z = zLoc;
+		setPosition(xLoc, yLoc, zLoc);
 	}
 	
 	public void setPosition(float xLoc, float yLoc, float zLoc)
@@ -121,7 +114,7 @@ public class AndroidGLCamera
 	{
 		//this method rotates the camera 90 degrees (ignoring roll)
 		//then moves the camera forward by the magnitude.
-		//Finally the camera resumes its prior orientation.
+		//Finally, the camera resumes its prior orientation.
 		yaw+=Math.toRadians(90);
 		x+= (float) (magnitude * Math.cos(yaw));
 		z+= (float) (magnitude * Math.sin(yaw));
@@ -180,8 +173,8 @@ public class AndroidGLCamera
 	//change the up reference point based on roll
 	private void updateUpVector()
 	{
-		vectorX = (float) Math.cos(roll);
-		 vectorY = (float) Math.sin(roll);
+		upVector.x = (float) Math.cos(roll);
+		upVector.y = (float) Math.sin(roll);
 	}
 	//this method updates the look positions
 	private void updateFocusPoint()
@@ -191,17 +184,10 @@ public class AndroidGLCamera
 		zL= (float) (Math.sin(yaw) * Math.cos(pitch) * renderDistance + z);
 		
 	}
-	//this method uses the GLU function 'gluLookAt()'
-	public void attachCamera(GL10 gl)
+
+	public Matrix4f getViewMatrix()
 	{
-		gl.glMatrixMode(GL10.GL_MODELVIEW);
-		gl.glLoadIdentity();
-		try
-		{
-			GLU.gluLookAt(gl, x, y, z, xL, yL, zL, vectorX, vectorY, vectorZ);
-		}
-		catch(Exception e)
-		{}
+		return new Matrix4f().lookAt(x, y, z, xL, yL, zL, upVector.x, upVector.y, upVector.z);
 	}
 	
 	public void setPitchRestrictions(double radMin, double radMax)
@@ -249,17 +235,9 @@ public class AndroidGLCamera
 	{
 		return zL;
 	}
-	public float getXVector()
+	public Vector3f getUpVector()
 	{
-		return vectorX;
-	}
-	public float getYVector()
-	{
-		return vectorY;
-	}
-	public float getZVector()
-	{
-		return vectorZ;
+		return upVector;
 	}
 	public float getPitch()
 	{

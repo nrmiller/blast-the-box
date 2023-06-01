@@ -1,14 +1,10 @@
-package net.nicksneurons.blastthebox.tmp;
+package net.nicksneurons.blastthebox.game;
 
 import miller.opengl.Dimension3d;
 import miller.opengl.Point3d;
 
-import com.millerni456.BlastTheBox.geometry.Cube;
-import com.millerni456.BlastTheBox.geometry.Square;
-import com.millerni456.BlastTheBox.utils.CubeStorage;
-import com.millerni456.BlastTheBox.utils.RenderQueue;
-import com.millerni456.BlastTheBox.utils.S;
-import com.millerni456.BlastTheBox.utils.SquareStorage;
+import net.nicksneurons.blastthebox.geometry.*;
+import net.nicksneurons.blastthebox.utils.*;
 
 public class Row
 {
@@ -303,7 +299,7 @@ public class Row
 	 */
 	public int pickPowerup()
 	{
-		Integer powerup = (Integer) Game.powerups.spin(S.ran);
+		Integer powerup = (Integer) Game.INSTANCE.getPowerups().spin(S.ran);
 		if(powerup!=null)
 		{
 			return powerup;
@@ -315,7 +311,7 @@ public class Row
 	}
 	public int pickHealth()
 	{
-		Integer health = (Integer) Game.cube_health.spin(S.ran);
+		Integer health = (Integer) Game.INSTANCE.getCube_health().spin(S.ran);
 		if(health!=null)
 		{
 			return health;
@@ -327,7 +323,7 @@ public class Row
 	}
 	public boolean pickIndestructible()
 	{
-		Integer i = (Integer) Game.indestructible.spin(S.ran);
+		Integer i = (Integer) Game.INSTANCE.getIndestructible().spin(S.ran);
 		boolean b = false;
 		if(i!=null && i.equals(Cube.INDESTRUCTIBLE))
 		{

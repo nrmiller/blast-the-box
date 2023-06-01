@@ -1,10 +1,7 @@
-package net.nicksneurons.blastthebox.tmp.utils;
+package net.nicksneurons.blastthebox.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import javax.microedition.khronos.opengles.GL10;
-
 
 public class RenderQueue
 {
@@ -37,9 +34,8 @@ public class RenderQueue
 	 * Sorts then renders all currently added Renderable objects on the queue. Renderable objects are sorted
 	 * based on their Z-values, from smallest to largest. After rendering,
 	 * all the objects are removed from the queue.
-	 * @param gl - OpenGL context.
 	 */
-	public void render(GL10 gl)
+	public void render()
 	{
 		indexArray = new int[renderables.size()];
 		for(int i = 0; i<indexArray.length; i++)
@@ -57,14 +53,10 @@ public class RenderQueue
 		for(int i = 0; i<objects.length; i++)
 		{
 			//Render objects in correct Z-Order
-			objects[i].draw(gl);
+			objects[i].draw();
 		}
-		
-		for(int i = renderables.size()-1; i>=0; i--)
-		{
-			//Remove from queue.
-			renderables.remove(i);
-		}
+
+		renderables.clear();
 	}
 	
 	/**

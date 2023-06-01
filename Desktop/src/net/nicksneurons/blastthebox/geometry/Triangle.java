@@ -4,6 +4,10 @@ import org.lwjgl.opengl.GL11;
 
 public class Triangle extends Primitive
 {
+	public Triangle()
+	{
+		init();
+	}
 
 	@Override
 	public float[] getVertexArray()

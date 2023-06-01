@@ -4,17 +4,24 @@ import miller.opengl.Dimension3d;
 import miller.opengl.Point3d;
 import org.lwjgl.opengl.GL11;
 
-public class Box extends Primitive
+public class Cuboid extends Primitive
 {
 	private Point3d vloc;
 	public Dimension3d dim;
 	public final boolean cubeMap;
-	
-	public Box(Point3d loc, Dimension3d dim, boolean useCubeMap)
+
+	public Cuboid(Dimension3d dim, boolean useCubeMap)
+	{
+		this(new Point3d(0.0d, 0.0d, 0.0d), dim, useCubeMap);
+	}
+
+	public Cuboid(Point3d loc, Dimension3d dim, boolean useCubeMap)
 	{
 		this.vloc = loc;
 		this.dim = dim;
 		cubeMap = useCubeMap;
+
+		init();
 	}
 
 	@Override
