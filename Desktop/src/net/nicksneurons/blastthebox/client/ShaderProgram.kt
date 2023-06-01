@@ -4,10 +4,11 @@ import org.lwjgl.opengl.GL33.*
 
 class ShaderProgram constructor(vertexShaderSource: String, fragmentShaderSource: String) {
 
-    private var program: Int = 0
+    var id: Int = 0
+        private set
 
     init {
-        program = glCreateProgram()
+        id = glCreateProgram()
         val vertexShader = glCreateShader(GL_VERTEX_SHADER)
         val fragmentShader = glCreateShader(GL_FRAGMENT_SHADER)
         glShaderSource(vertexShader, vertexShaderSource)
@@ -18,7 +19,7 @@ class ShaderProgram constructor(vertexShaderSource: String, fragmentShaderSource
             println("Vertex shader failed to compile!\n" + "=".repeat(80))
             println(glGetShaderInfoLog(vertexShader).prependIndent("    "))
         }
-        glAttachShader(program, vertexShader)
+        glAttachShader(id, vertexShader)
         glShaderSource(fragmentShader, fragmentShaderSource)
         glCompileShader(fragmentShader)
         val fStatus = glGetShaderi(fragmentShader, GL_COMPILE_STATUS)
@@ -27,27 +28,27 @@ class ShaderProgram constructor(vertexShaderSource: String, fragmentShaderSource
             println("Fragment shader failed to compile!\n" + "=".repeat(80))
             println(glGetShaderInfoLog(fragmentShader).prependIndent("    "))
         }
-        glAttachShader(program, fragmentShader)
-        glLinkProgram(program)
-        val lStatus = glGetProgrami(program, GL_LINK_STATUS)
+        glAttachShader(id, fragmentShader)
+        glLinkProgram(id)
+        val lStatus = glGetProgrami(id, GL_LINK_STATUS)
         if (lStatus == GL_FALSE)
         {
             println("Shader program failed to link!\n" + "=".repeat(80))
-            println(glGetProgramInfoLog(program).prependIndent("    "))
+            println(glGetProgramInfoLog(id).prependIndent("    "))
         }
 
         // Delete the shader objects
-        glDetachShader(program, vertexShader)
-        glDetachShader(program, fragmentShader)
+        glDetachShader(id, vertexShader)
+        glDetachShader(id, fragmentShader)
         glDeleteShader(vertexShader)
         glDeleteShader(fragmentShader)
     }
 
     fun use() {
-        glUseProgram(program)
+        glUseProgram(id)
     }
 
     fun delete() {
-        glDeleteProgram(program)
+        glDeleteProgram(id)
     }
 }
