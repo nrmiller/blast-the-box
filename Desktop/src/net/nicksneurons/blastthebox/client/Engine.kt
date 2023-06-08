@@ -7,6 +7,7 @@ import com.fractaldungeon.tools.input.MouseListener
 import net.nicksneurons.blastthebox.ecs.Entity
 import net.nicksneurons.blastthebox.ecs.Scene
 import net.nicksneurons.blastthebox.ecs.components.Mesh
+import net.nicksneurons.blastthebox.ecs.components.Texture
 import net.nicksneurons.blastthebox.ecs.components.Transform
 import org.joml.Matrix4f
 import org.joml.Vector3f
@@ -71,6 +72,12 @@ class Engine : GLEventListener, UpdateListener, MouseListener, KeyListener {
                     .scale(transform.scale.x, transform.scale.y, transform.scale.z)
                     .get(buffer)
             glUniformMatrix4fv(glGetUniformLocation(program.id, "model"), false, buffer)
+
+            if (renderable.hasComponent<Texture>()) {
+                val texture = renderable.getComponent<Texture>()!!
+
+                texture.bind()
+            }
 
             primitive.draw()
         }

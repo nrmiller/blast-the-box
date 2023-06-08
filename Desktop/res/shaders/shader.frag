@@ -1,12 +1,17 @@
 #version 330 core
-in vec3 vertexColor;
-out vec4 FragColor;
-in vec2 TexCoord;
 
 uniform sampler2D _texture;
+
+in vec3 vertexColor;
+in vec2 TexCoord;
+
+out vec4 FragColor;
 
 void main()
 {
     vec4 texel = texture(_texture, TexCoord);
-    FragColor = vec4(vertexColor.r, vertexColor.g, vertexColor.b, 1.0f);
+    FragColor = texel;
+
+    // this interpolates between the texel and the vertex color
+//    FragColor = mix(texel, FragColor, 0.5);
 }

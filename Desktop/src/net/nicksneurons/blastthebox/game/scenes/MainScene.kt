@@ -17,18 +17,18 @@ class MainScene : Scene() {
 
         grayBox.getComponent<Transform>()!!.position = Vector3f(1.0f - 0.5f, -0.5f, 0.0f)
 
-        val grayBox1 = factory.createGrayBox()
+        val grayBox1 = factory.createGreenBox()
         entities.add(grayBox1)
 
         grayBox1.getComponent<Transform>()!!.position = Vector3f(-1.0f - 0.5f, -0.5f, 0.0f)
 
-        val grayBox2 = factory.createGrayBox()
+        val grayBox2 = factory.createRedBox()
         entities.add(grayBox2)
 
         grayBox2.getComponent<Transform>()!!.position = Vector3f(-0.5f, -0.5f, 0.0f)
         grayBox2.getComponent<Transform>()!!.rotation = Vector3f(Math.PI.toFloat() / 2.0f, 0.0f, 0.0f);
 
-        val grayBox4 = factory.createGrayBox()
+        val grayBox4 = factory.createBlueBox()
         entities.add(grayBox4)
 
         grayBox4.getComponent<Transform>()!!.position = Vector3f(-0.5f, -0.5f, 0.5f)

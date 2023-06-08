@@ -5,10 +5,7 @@ import net.nicksneurons.blastthebox.ecs.Entity
 import net.nicksneurons.blastthebox.ecs.components.Mesh
 import net.nicksneurons.blastthebox.ecs.components.Texture
 import net.nicksneurons.blastthebox.ecs.components.Transform
-import net.nicksneurons.blastthebox.geometry.Circle
 import net.nicksneurons.blastthebox.geometry.Cube
-import net.nicksneurons.blastthebox.geometry.Cuboid
-import net.nicksneurons.blastthebox.geometry.Square
 import org.joml.Vector3f
 
 class BoxFactory {

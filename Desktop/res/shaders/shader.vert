@@ -14,4 +14,5 @@ void main()
 {
     gl_Position = projectionView * model * vec4(pos.x, pos.y, pos.z, 1.0);
     vertexColor = color;
+    TexCoord = texCoord;
 }
