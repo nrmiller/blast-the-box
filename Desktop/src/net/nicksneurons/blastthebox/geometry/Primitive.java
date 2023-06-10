@@ -200,4 +200,10 @@ public abstract class Primitive implements Renderable
 	{
 		return texture;
 	}
+
+	public void free() {
+		// This could be deleted sooner, see: https://stackoverflow.com/a/27937786/975724
+		glDeleteBuffers(bufferIds);
+		glDeleteVertexArrays(vao);
+	}
 }

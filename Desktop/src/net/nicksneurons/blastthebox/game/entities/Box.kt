@@ -6,30 +6,29 @@ import net.nicksneurons.blastthebox.ecs.components.Mesh
 import net.nicksneurons.blastthebox.ecs.components.Texture
 import net.nicksneurons.blastthebox.ecs.components.Transform
 import net.nicksneurons.blastthebox.geometry.Cube
-import org.joml.Vector3f
 
 class BoxFactory {
     fun createGrayBox(): Box {
         val box = Box(1)
-        box.components.add(Texture("/textures/block_gray.png"))
+        box.addComponent(Texture("/textures/block_gray.png"))
         return box
     }
 
     fun createGreenBox(): Box {
         val box = Box(2)
-        box.components.add(Texture("/textures/block_green.png"))
+        box.addComponent(Texture("/textures/block_green.png"))
         return box
     }
 
     fun createBlueBox(): Box {
         val box = Box(3)
-        box.components.add(Texture("/textures/block_blue.png"))
+        box.addComponent(Texture("/textures/block_blue.png"))
         return box
     }
 
     fun createRedBox(): Box {
         val box = Box(0, true)
-        box.components.add(Texture("/textures/block_red.png"))
+        box.addComponent(Texture("/textures/block_red.png"))
         return box
     }
 }
@@ -37,7 +36,7 @@ class BoxFactory {
 class Box(val health: Int, val isIndestructible: Boolean = false): Entity() {
 
     init {
-        components.addAll(listOf(
+        addComponents(listOf(
                 Mesh(Cube()),
                 Transform(),
         ))

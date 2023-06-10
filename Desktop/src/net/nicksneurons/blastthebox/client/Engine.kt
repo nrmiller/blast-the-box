@@ -1,21 +1,32 @@
 package net.nicksneurons.blastthebox.client
 
 import com.fractaldungeon.tools.GLEventListener
-import com.fractaldungeon.tools.input.KeyListener
 import com.fractaldungeon.tools.UpdateListener
+import com.fractaldungeon.tools.input.KeyListener
 import com.fractaldungeon.tools.input.MouseListener
 import net.nicksneurons.blastthebox.ecs.Entity
 import net.nicksneurons.blastthebox.ecs.Scene
+import net.nicksneurons.blastthebox.ecs.audio.AudioPlayer
 import net.nicksneurons.blastthebox.ecs.components.Mesh
 import net.nicksneurons.blastthebox.ecs.components.Texture
 import net.nicksneurons.blastthebox.ecs.components.Transform
 import org.joml.Matrix4f
 import org.joml.Vector3f
 import org.lwjgl.BufferUtils
-import org.lwjgl.glfw.GLFW.*
+import org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT
+import org.lwjgl.openal.AL
+import org.lwjgl.openal.AL10.*
+import org.lwjgl.openal.ALC
+import org.lwjgl.openal.ALC10.*
+import org.lwjgl.openal.ALC11.*
+import org.lwjgl.openal.EXTStereoAngles.AL_STEREO_ANGLES
+import org.lwjgl.openal.SOFTHRTF.*
 import org.lwjgl.opengl.GL33.*
+import org.lwjgl.system.MemoryUtil
+import java.nio.IntBuffer
 import kotlin.math.cos
 import kotlin.math.sin
+
 
 class Engine : GLEventListener, UpdateListener, MouseListener, KeyListener {
 
@@ -30,6 +41,56 @@ class Engine : GLEventListener, UpdateListener, MouseListener, KeyListener {
     private val angularSpeed = Math.PI
 
     private var angle = Math.PI * 0.5 //0.0
+
+    init {
+        val device = alcOpenDevice(null as String?)
+        val context = alcCreateContext(device, null as IntBuffer?)
+        println("Device: ${alcGetString(device, ALC_ALL_DEVICES_SPECIFIER)}")
+        alcMakeContextCurrent(context)
+
+        AL.createCapabilities(ALC.createCapabilities(device), MemoryUtil::memCallocPointer)
+
+        println("ALC_FREQUENCY     : " + alcGetInteger(device, ALC_FREQUENCY) + "Hz")
+        println("ALC_REFRESH       : " + alcGetInteger(device, ALC_REFRESH) + "Hz")
+        println("ALC_SYNC          : " + (alcGetInteger(device, ALC_SYNC) == ALC_TRUE))
+        println("ALC_MONO_SOURCES  : " + alcGetInteger(device, ALC_MONO_SOURCES))
+        println("ALC_STEREO_SOURCES: " + alcGetInteger(device, ALC_STEREO_SOURCES))
+
+        //See https://en.wikipedia.org/wiki/Head-related_transfer_function
+//        val num_hrtf = alcGetInteger(device, ALC_NUM_HRTF_SPECIFIERS_SOFT)
+//        println("ALC_NUM_HRTF_SPEICIFIERS_SOFT: " + num_hrtf)
+//        val attr = BufferUtils.createIntBuffer(10)
+//                .put(ALC_HRTF_SOFT)
+//                .put(ALC_TRUE)
+//                .put(ALC_HRTF_ID_SOFT)
+//                .put(0)
+//                .flip()
+//
+//        alcResetDeviceSOFT(device, attr)
+
+
+//        val hrtf_state = alcGetInteger(device, ALC_HRTF_SOFT)
+//        if (hrtf_state == 0) {
+//            System.out.format("HRTF not enabled!\n")
+//        } else {
+//            val name = alcGetString(device, ALC_HRTF_SPECIFIER_SOFT)
+//            System.out.format("HRTF enabled, using %s\n", name)
+//        }
+
+//        alEnable(AL_STEREO_ANGLES)
+
+
+        alListenerf(AL_GAIN, 1.0f) // global volume
+        alListener3f(AL_POSITION, 0.0f, 0.0f, 0.0f)
+        alListener3f(AL_VELOCITY, 0.0f, 0.0f, 0.0f)
+        alListenerfv(AL_ORIENTATION, floatArrayOf(
+                0.0f, 0.0f, -1.0f, // forward
+                0.0f, 1.0f, 0.0f, // up
+        ))
+        alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED)
+//        alDopplerVelocity(1.0f)
+//        alDopplerFactor(0.1f)
+    }
 
     override fun onSurfaceCreated() {
 
@@ -86,6 +147,8 @@ class Engine : GLEventListener, UpdateListener, MouseListener, KeyListener {
     override fun onSurfaceChanged(width: Int, height: Int) {
         this.width = width
         this.height = height
+
+        glViewport(0, 0, width, height)
     }
 
     private val aspect: Float
@@ -106,6 +169,8 @@ class Engine : GLEventListener, UpdateListener, MouseListener, KeyListener {
 
     override fun onUpdate(delta: Double) {
         val scene = currentScene
+
+        AudioPlayer.pollForCompletedSounds()
 
         angle += angularSpeed * delta
         if (scene != null) {
@@ -160,7 +225,7 @@ class Engine : GLEventListener, UpdateListener, MouseListener, KeyListener {
             val component = entity.components[index]
             if (component.isMarkedForDeletion) {
                 component.free()
-                entity.components.removeAt(index)
+                entity.removeComponentAt(index)
             }
         }
     }

@@ -2,6 +2,7 @@ package net.nicksneurons.blastthebox.ecs
 
 import com.fractaldungeon.tools.UpdateListener
 import com.fractaldungeon.tools.input.*
+import java.util.*
 
 /**
  * A GameObject is anything that can receive basic events from the engine.
@@ -39,12 +40,39 @@ open class Scene : GameObject() {
 open class Entity : GameObject() {
     var name: String? = null
 
-    val components = mutableListOf<Component>()
+    private val mutableComponents = mutableListOf<Component>()
+    val components: List<Component> = Collections.unmodifiableList(mutableComponents)
 
     var isMarkedForDeletion: Boolean = false
     fun queueFree() {
         isMarkedForDeletion = true
     }
+
+    fun addComponent(component: Component) {
+        mutableComponents.add(component)
+        component.onAttached(this)
+    }
+
+    fun addComponents(components: Iterable<Component>) {
+        components.forEach { addComponent(it) }
+    }
+
+    fun removeComponent(component: Component) {
+        if (mutableComponents.contains(component)) {
+            mutableComponents.remove(component)
+            component.onDetached()
+        }
+    }
+
+    fun removeComponentAt(index: Int): Component? {
+        if (components.isNotEmpty() && index >= 0 && index < components.size){
+            val component = mutableComponents.removeAt(index)
+            component.onDetached()
+            return component
+        }
+        return null
+    }
+
     inline fun <reified T: Component> getComponent(name: String? = null): T? {
         return components.firstOrNull {
             // Return first matching component of the type, or additionally with the matching name
@@ -60,7 +88,7 @@ open class Entity : GameObject() {
         for (component in components) {
             component.free()
         }
-        components.clear()
+        mutableComponents.clear()
     }
 }
 
@@ -77,5 +105,15 @@ open class Component {
      */
     open fun free() {
 
+    }
+
+    var entity: Entity? = null
+
+    open fun onAttached(entity: Entity) {
+        this.entity = entity
+    }
+
+    open fun onDetached() {
+        queueFree()
     }
 }

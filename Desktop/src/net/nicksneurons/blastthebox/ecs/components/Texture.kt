@@ -46,10 +46,10 @@ class Texture(val resourcePath: String) : Component() {
         }
 
     init {
-        stackPush().use() {
-            val w = MemoryUtil.memAllocInt(1)
-            val h = MemoryUtil.memAllocInt(1)
-            val comp = MemoryUtil.memAllocInt(1)
+        stackPush().use() { stack ->
+            val w = stack.mallocInt(1)
+            val h = stack.mallocInt(1)
+            val comp = stack.mallocInt(1)
             id = glGenTextures()
             glBindTexture(GL_TEXTURE_2D, id)
 
