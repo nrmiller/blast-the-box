@@ -1,7 +1,5 @@
 package net.nicksneurons.blastthebox.geometry;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
@@ -9,7 +7,7 @@ import miller.opengl.Dimension3d;
 import miller.opengl.Point3d;
 
 import net.nicksneurons.blastthebox.utils.Renderable;
-import org.lwjgl.BufferUtils;
+import org.lwjgl.system.MemoryUtil;
 
 import static org.lwjgl.opengl.GL33.*;
 
@@ -97,25 +95,25 @@ public abstract class Primitive implements Renderable
 		texCoords = getTexCoordArray();
 		normals = getNormalArray();
 		renderMode = getRenderingMode();
-		
+
 		//create buffers
-		FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(vertices.length * 4);
+		FloatBuffer vertexBuffer = MemoryUtil.memAllocFloat(vertices.length);
 		vertexBuffer.put(vertices);
 		vertexBuffer.flip();
 
-		FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(colors.length * 4);
+		FloatBuffer colorBuffer = MemoryUtil.memAllocFloat(colors.length);
 		colorBuffer.put(colors);
 		colorBuffer.flip();
 
-		ShortBuffer indexBuffer = BufferUtils.createShortBuffer(indices.length * 2);
+		ShortBuffer indexBuffer = MemoryUtil.memAllocShort(indices.length);
 		indexBuffer.put(indices);
 		indexBuffer.flip();
 
-		FloatBuffer texCoordBuffer = BufferUtils.createFloatBuffer(texCoords.length * 4);
+		FloatBuffer texCoordBuffer = MemoryUtil.memAllocFloat(texCoords.length);
 		texCoordBuffer.put(texCoords);
 		texCoordBuffer.flip();
 
-		FloatBuffer normalBuffer = BufferUtils.createFloatBuffer(normals.length * 4);
+		FloatBuffer normalBuffer = MemoryUtil.memAllocFloat(normals.length);
 		normalBuffer.put(normals);
 		normalBuffer.flip();
 
@@ -143,12 +141,18 @@ public abstract class Primitive implements Renderable
 
 		glBindBuffer(GL_ARRAY_BUFFER, bufferIds[NORMAL_INDEX]);
 		glBufferData(GL_ARRAY_BUFFER, normalBuffer, GL_STATIC_DRAW);
-		glVertexAttribPointer(NORMAL_INDEX, 3, GL_FLOAT, false, 3 * Float.BYTES, normalBuffer);
+		glVertexAttribPointer(NORMAL_INDEX, 3, GL_FLOAT, false, 3 * Float.BYTES, 0);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferIds[ELEMENT_INDEX]);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_STATIC_DRAW);
 
 		glBindVertexArray(0);
+
+		MemoryUtil.memFree(vertexBuffer);
+		MemoryUtil.memFree(colorBuffer);
+		MemoryUtil.memFree(indexBuffer);
+		MemoryUtil.memFree(texCoordBuffer);
+		MemoryUtil.memFree(normalBuffer);
 	}
 	
 	@Override

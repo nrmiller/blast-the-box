@@ -11,8 +11,6 @@ import org.lwjgl.system.MemoryStack.stackPush
 import org.lwjgl.system.MemoryUtil.NULL
 
 import org.lwjgl.opengl.GL33.*
-import java.nio.ByteBuffer
-import java.nio.IntBuffer
 
 fun main() {
     HelloWorld()
@@ -29,8 +27,8 @@ class HelloWorld() {
         init()
         square = Square()
 
-        val vertexShaderSource = javaClass.getResource("/shaders/shader.vert").readText()
-        val fragmentShaderSource = javaClass.getResource("/shaders/shader.frag").readText()
+        val vertexShaderSource = javaClass.getResource("/shaders/default_shader.vert").readText()
+        val fragmentShaderSource = javaClass.getResource("/shaders/default_shader.frag").readText()
         program = ShaderProgram(vertexShaderSource, fragmentShaderSource)
 
         loop()

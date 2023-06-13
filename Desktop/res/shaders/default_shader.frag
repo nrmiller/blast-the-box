@@ -13,5 +13,5 @@ void main()
     FragColor = texel;
 
     // this interpolates between the texel and the vertex color
-//    FragColor = mix(texel, FragColor, 0.5);
+//    FragColor = mix(texel, vec4(vertexColor.rgb, 1.0), 0.5);
 }

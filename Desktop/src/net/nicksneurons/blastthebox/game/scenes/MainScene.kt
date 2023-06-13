@@ -1,6 +1,7 @@
 package net.nicksneurons.blastthebox.game.scenes
 
 import miller.util.TimedThread
+import net.nicksneurons.blastthebox.client.Engine
 import net.nicksneurons.blastthebox.ecs.Scene
 import net.nicksneurons.blastthebox.ecs.audio.AudioClip
 import net.nicksneurons.blastthebox.ecs.audio.AudioPlayer
@@ -61,6 +62,8 @@ class MainScene : Scene() {
 //                    isDirectional = true
 //                    direction = Vector3f(1.0f, 1.0f, 0.0f)
                 })
+
+                Engine.instance.setScene(MainScreenScene())
 
                 stop()
             }

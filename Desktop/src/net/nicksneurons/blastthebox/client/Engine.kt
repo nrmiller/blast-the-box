@@ -7,34 +7,34 @@ import com.fractaldungeon.tools.input.MouseListener
 import net.nicksneurons.blastthebox.ecs.Entity
 import net.nicksneurons.blastthebox.ecs.Scene
 import net.nicksneurons.blastthebox.ecs.audio.AudioPlayer
-import net.nicksneurons.blastthebox.ecs.components.Mesh
-import net.nicksneurons.blastthebox.ecs.components.Texture
-import net.nicksneurons.blastthebox.ecs.components.Transform
+import net.nicksneurons.blastthebox.ecs.components.*
 import org.joml.Matrix4f
 import org.joml.Vector3f
-import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT
 import org.lwjgl.openal.AL
 import org.lwjgl.openal.AL10.*
 import org.lwjgl.openal.ALC
-import org.lwjgl.openal.ALC10.*
 import org.lwjgl.openal.ALC11.*
-import org.lwjgl.openal.EXTStereoAngles.AL_STEREO_ANGLES
-import org.lwjgl.openal.SOFTHRTF.*
+import org.lwjgl.openal.ALCapabilities
 import org.lwjgl.opengl.GL33.*
 import org.lwjgl.system.MemoryUtil
+import java.nio.FloatBuffer
 import java.nio.IntBuffer
 import kotlin.math.cos
 import kotlin.math.sin
 
 
-class Engine : GLEventListener, UpdateListener, MouseListener, KeyListener {
+class Engine private constructor(): GLEventListener, UpdateListener, MouseListener, KeyListener {
+
+    private lateinit var matrixBuffer: FloatBuffer
+
+    private val alContext: Long
+    private val alCaps: ALCapabilities
 
     private var width: Int = 0
     private var height: Int = 0
 
-    private lateinit var program: ShaderProgram
-//    private val square = Square()
+    private lateinit var defaultMaterial: Material
 
     private val distance = 20.0f
     private val eyeHeight = 5.0f
@@ -44,11 +44,11 @@ class Engine : GLEventListener, UpdateListener, MouseListener, KeyListener {
 
     init {
         val device = alcOpenDevice(null as String?)
-        val context = alcCreateContext(device, null as IntBuffer?)
+        alContext = alcCreateContext(device, null as IntBuffer?)
         println("Device: ${alcGetString(device, ALC_ALL_DEVICES_SPECIFIER)}")
-        alcMakeContextCurrent(context)
+        alcMakeContextCurrent(alContext)
 
-        AL.createCapabilities(ALC.createCapabilities(device), MemoryUtil::memCallocPointer)
+        alCaps = AL.createCapabilities(ALC.createCapabilities(device), MemoryUtil::memCallocPointer)
 
         println("ALC_FREQUENCY     : " + alcGetInteger(device, ALC_FREQUENCY) + "Hz")
         println("ALC_REFRESH       : " + alcGetInteger(device, ALC_REFRESH) + "Hz")
@@ -95,11 +95,12 @@ class Engine : GLEventListener, UpdateListener, MouseListener, KeyListener {
     override fun onSurfaceCreated() {
 
         glEnable(GL_DEPTH_TEST)
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-        val vertexShaderSource = javaClass.getResource("/shaders/shader.vert").readText()
-        val fragmentShaderSource = javaClass.getResource("/shaders/shader.frag").readText()
-        program = ShaderProgram(vertexShaderSource, fragmentShaderSource)
-        program.use()
+        defaultMaterial = Material("/shaders/default_shader.vert", "/shaders/default_shader.frag")
+
+        matrixBuffer = MemoryUtil.memAllocFloat(16)
     }
 
     override fun onDrawFrame() {
@@ -107,40 +108,58 @@ class Engine : GLEventListener, UpdateListener, MouseListener, KeyListener {
 
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 
-        val buffer = BufferUtils.createFloatBuffer(16)
-        Matrix4f()
-                .perspective(Math.toRadians(45.0).toFloat(), aspect, 0.01f, 100.0f) // projection
-                .lookAt((distance * cos(angle)).toFloat(), eyeHeight, (distance * sin(angle)).toFloat(), // view
-                    0.0f, 0.0f, 0.0f,
-                    0.0f, 1.0f, 0.0f)
-                .get(buffer)
-        glUniformMatrix4fv(glGetUniformLocation(program.id, "projectionView"), false, buffer)
-
-        buffer.clear()
-
         val renderables = scene.entities.filter { it.hasComponent<Mesh>() && it.hasComponent<Transform>() }
         var zOrderedRenderables = renderables.sortedBy { it.getComponent<Transform>()!!.position.z }
         for (renderable in zOrderedRenderables) {
             var transform = renderable.getComponent<Transform>()!!
             var primitive = renderable.getComponent<Mesh>()!!.primitive
 
+            val material = chooseMaterial(renderable)
+            material.program.use()
+
+            Matrix4f()
+                    .perspective(Math.toRadians(45.0).toFloat(), aspect, 0.01f, 100.0f) // projection
+                    .lookAt((distance * cos(angle)).toFloat(), eyeHeight, (distance * sin(angle)).toFloat(), // view
+                            0.0f, 0.0f, 0.0f,
+                            0.0f, 1.0f, 0.0f)
+                    .get(matrixBuffer)
+            glUniformMatrix4fv(glGetUniformLocation(material.program.id, "projectionView"), false, matrixBuffer)
+            matrixBuffer.clear()
+
             Matrix4f()
                     .rotate(transform.rotation.x, Vector3f(1.0f, 0.0f, 0.0f))
                     .rotate(transform.rotation.y, Vector3f(0.0f, 1.0f, 0.0f))
                     .rotate(transform.rotation.z, Vector3f(0.0f, 0.0f, 1.0f))
-                    .translate(transform.position.x.toFloat(), transform.position.y.toFloat(), transform.position.z.toFloat())
+                    .translate(transform.position.x, transform.position.y, transform.position.z)
 //                    .rotate(transform.rotation.x, transform.rotation.y, transform.rotation.z) // todo need quaternions
                     .scale(transform.scale.x, transform.scale.y, transform.scale.z)
-                    .get(buffer)
-            glUniformMatrix4fv(glGetUniformLocation(program.id, "model"), false, buffer)
+                    .get(matrixBuffer)
+            glUniformMatrix4fv(glGetUniformLocation(material.program.id, "model"), false, matrixBuffer)
 
             if (renderable.hasComponent<Texture>()) {
                 val texture = renderable.getComponent<Texture>()!!
 
                 texture.bind()
+            } else if (renderable.hasComponent<TextureAtlas>()) {
+                val texture = renderable.getComponent<TextureAtlas>()!!
+
+                texture.bind()
             }
 
             primitive.draw()
+        }
+
+//        val free = getRuntime().freeMemory()
+//        System.gc()
+//        System.runFinalization()
+//        println("${getRuntime().freeMemory() - free} bytes freed")
+    }
+
+    private fun chooseMaterial(renderable: Entity): Material {
+        return if (renderable.hasComponent<Material>()) {
+            renderable.getComponent()!!
+        } else {
+            defaultMaterial
         }
     }
 
@@ -155,7 +174,12 @@ class Engine : GLEventListener, UpdateListener, MouseListener, KeyListener {
         get() = if (height == 0) 1.0f else width.toFloat() / height
 
     override fun onSurfaceDestroyed() {
+        MemoryUtil.memFree(matrixBuffer)
 
+        // Finalize OpenAL
+        MemoryUtil.memFree(alCaps.addressBuffer)
+        alcDestroyContext(alContext)
+        ALC.destroy()
     }
 
 
@@ -277,5 +301,9 @@ class Engine : GLEventListener, UpdateListener, MouseListener, KeyListener {
         for (entity in scene.entities) {
             entity.onMouseButtonUp(button, modifiers, x, y)
         }
+    }
+
+    companion object {
+        @JvmStatic val instance = Engine()
     }
 }

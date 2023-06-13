@@ -2,16 +2,21 @@ package net.nicksneurons.blastthebox.client
 
 import com.fractaldungeon.tools.*
 import net.nicksneurons.blastthebox.game.scenes.MainScene
+import org.lwjgl.system.Configuration
 
 fun main() {
 
-    val engine = Engine()
+    Configuration.DEBUG.set(true)
+    Configuration.DEBUG_STACK.set(true)
+    Configuration.DEBUG_MEMORY_ALLOCATOR.set(true)
+
+    val engine = Engine.instance
     engine.setScene(MainScene())
 
     GLWindow("Blast the Box", 1280, 720)
             .setGLProfile(GLProfile.OPENGL_CORE_PROFILE)
             .setGLClientAPI(GLClientAPI.OPENGL_API)
-            .setGLVersion(3, 3)
+            .setGLVersion(4, 2)
             .setGLEventListener(engine)
             .setUpdateListener(engine)
             .setKeyListener(engine)
