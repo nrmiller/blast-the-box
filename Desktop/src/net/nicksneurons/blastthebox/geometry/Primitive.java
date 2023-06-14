@@ -6,7 +6,7 @@ import java.nio.ShortBuffer;
 import miller.opengl.Dimension3d;
 import miller.opengl.Point3d;
 
-import net.nicksneurons.blastthebox.utils.Renderable;
+import net.nicksneurons.blastthebox.ecs.components.Renderable;
 import org.lwjgl.system.MemoryUtil;
 
 import static org.lwjgl.opengl.GL33.*;
@@ -34,7 +34,6 @@ public abstract class Primitive implements Renderable
 
 	public int texture;
 	
-	@Override
 	public Point3d getLocation()
 	{
 		return loc;
@@ -85,7 +84,6 @@ public abstract class Primitive implements Renderable
 	
 	public abstract float[] getNormalArray();
 
-	@Override
 	public void init()
 	{
 		//get array data

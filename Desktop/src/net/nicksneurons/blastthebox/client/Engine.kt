@@ -6,10 +6,10 @@ import com.fractaldungeon.tools.input.KeyListener
 import com.fractaldungeon.tools.input.MouseListener
 import net.nicksneurons.blastthebox.ecs.Entity
 import net.nicksneurons.blastthebox.ecs.Scene
-import net.nicksneurons.blastthebox.ecs.audio.AudioPlayer
 import net.nicksneurons.blastthebox.ecs.components.*
 import org.joml.Matrix4f
 import org.joml.Vector3f
+import org.joml.Vector4f
 import org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT
 import org.lwjgl.openal.AL
 import org.lwjgl.openal.AL10.*
@@ -34,11 +34,9 @@ class Engine private constructor(): GLEventListener, UpdateListener, MouseListen
     private var width: Int = 0
     private var height: Int = 0
 
-    private lateinit var defaultMaterial: Material
-
     private val distance = 20.0f
     private val eyeHeight = 5.0f
-    private val angularSpeed = Math.PI
+    private val angularSpeed = Math.PI / 4
 
     private var angle = Math.PI * 0.5 //0.0
 
@@ -98,7 +96,7 @@ class Engine private constructor(): GLEventListener, UpdateListener, MouseListen
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-        defaultMaterial = Material("/shaders/default_shader.vert", "/shaders/default_shader.frag")
+        glClearColor(0.086f, 0.173f, 0.380f, 1.0f)
 
         matrixBuffer = MemoryUtil.memAllocFloat(16)
     }
@@ -108,21 +106,37 @@ class Engine private constructor(): GLEventListener, UpdateListener, MouseListen
 
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 
-        val renderables = scene.entities.filter { it.hasComponent<Mesh>() && it.hasComponent<Transform>() }
-        var zOrderedRenderables = renderables.sortedBy { it.getComponent<Transform>()!!.position.z }
-        for (renderable in zOrderedRenderables) {
-            var transform = renderable.getComponent<Transform>()!!
-            var primitive = renderable.getComponent<Mesh>()!!.primitive
+        val projectionMatrix = Matrix4f().perspective(Math.toRadians(45.0).toFloat(), aspect, 0.01f, 100.0f) // projection
+        val viewMatrix = Matrix4f().lookAt((distance * cos(angle)).toFloat(), eyeHeight, (distance * sin(angle)).toFloat(), // view
+                        0.0f, 0.0f, 0.0f,
+                        0.0f, 1.0f, 0.0f)
 
-            val material = chooseMaterial(renderable)
+
+
+        val projViewMatrix = Matrix4f()
+        val invProjViewMatrix = Matrix4f()
+        projectionMatrix.mul(viewMatrix, projViewMatrix)
+        projViewMatrix.invert(invProjViewMatrix)
+
+
+        val renderables = scene.entities.flatMap { it.getAllComponents<RenderableComponent>() }
+
+        // we need to transform the entity to projection-view space before we can sort,
+        // effectively this sorts against the distance from the camera.
+        val zOrderedRenderables = renderables.sortedByDescending { invProjViewMatrix.transform(Vector4f(it.entity!!.transform.position, 1.0f)).z }
+
+        for (renderable in zOrderedRenderables) {
+            val transform = renderable.entity!!.transform
+
+            val material = renderable.material
             material.program.use()
 
-            Matrix4f()
-                    .perspective(Math.toRadians(45.0).toFloat(), aspect, 0.01f, 100.0f) // projection
-                    .lookAt((distance * cos(angle)).toFloat(), eyeHeight, (distance * sin(angle)).toFloat(), // view
-                            0.0f, 0.0f, 0.0f,
-                            0.0f, 1.0f, 0.0f)
-                    .get(matrixBuffer)
+
+            projectionMatrix.get(matrixBuffer)
+            glUniformMatrix4fv(glGetUniformLocation(material.program.id, "projection"), false, matrixBuffer)
+            viewMatrix.get(matrixBuffer)
+            glUniformMatrix4fv(glGetUniformLocation(material.program.id, "view"), false, matrixBuffer)
+            projViewMatrix.get(matrixBuffer)
             glUniformMatrix4fv(glGetUniformLocation(material.program.id, "projectionView"), false, matrixBuffer)
             matrixBuffer.clear()
 
@@ -136,31 +150,13 @@ class Engine private constructor(): GLEventListener, UpdateListener, MouseListen
                     .get(matrixBuffer)
             glUniformMatrix4fv(glGetUniformLocation(material.program.id, "model"), false, matrixBuffer)
 
-            if (renderable.hasComponent<Texture>()) {
-                val texture = renderable.getComponent<Texture>()!!
-
-                texture.bind()
-            } else if (renderable.hasComponent<TextureAtlas>()) {
-                val texture = renderable.getComponent<TextureAtlas>()!!
-
-                texture.bind()
-            }
-
-            primitive.draw()
+            renderable.draw()
         }
 
 //        val free = getRuntime().freeMemory()
 //        System.gc()
 //        System.runFinalization()
 //        println("${getRuntime().freeMemory() - free} bytes freed")
-    }
-
-    private fun chooseMaterial(renderable: Entity): Material {
-        return if (renderable.hasComponent<Material>()) {
-            renderable.getComponent()!!
-        } else {
-            defaultMaterial
-        }
     }
 
     override fun onSurfaceChanged(width: Int, height: Int) {
@@ -194,14 +190,9 @@ class Engine private constructor(): GLEventListener, UpdateListener, MouseListen
     override fun onUpdate(delta: Double) {
         val scene = currentScene
 
-        AudioPlayer.pollForCompletedSounds()
-
         angle += angularSpeed * delta
         if (scene != null) {
             scene.onUpdate(delta)
-            for (entity in scene.entities) {
-                entity.onUpdate(delta)
-            }
 
             freeMarkedEntities(currentScene)
         }

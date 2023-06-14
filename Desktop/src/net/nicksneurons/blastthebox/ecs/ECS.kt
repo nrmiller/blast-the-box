@@ -2,6 +2,7 @@ package net.nicksneurons.blastthebox.ecs
 
 import com.fractaldungeon.tools.UpdateListener
 import com.fractaldungeon.tools.input.*
+import net.nicksneurons.blastthebox.ecs.components.Transform
 import java.util.*
 
 /**
@@ -35,10 +36,18 @@ open class Scene : GameObject() {
             it is T && (name == null || it.name == name)
         } as T?
     }
+
+    override fun onUpdate(delta: Double) {
+        for (entity in entities) {
+            entity.onUpdate(delta)
+        }
+    }
 }
 
 open class Entity : GameObject() {
     var name: String? = null
+
+    val transform = Transform()
 
     private val mutableComponents = mutableListOf<Component>()
     val components: List<Component> = Collections.unmodifiableList(mutableComponents)
@@ -80,8 +89,20 @@ open class Entity : GameObject() {
         } as T?
     }
 
+    inline fun <reified T: Component> getAllComponents(): Iterable<T> {
+        return components.filterIsInstance<T>()
+    }
+
     inline fun <reified T: Component> hasComponent(): Boolean {
         return components.any { it is T }
+    }
+
+    override fun onUpdate(delta: Double) {
+        for (component in components) {
+            if (component is UpdateListener) {
+                component.onUpdate(delta)
+            }
+        }
     }
 
     open fun free() {

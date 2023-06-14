@@ -27,7 +27,6 @@ object AudioPlayer {
     fun stopSound(source: AudioSource) {
         source.stop()
         sources.remove(source)
-        source.free()
     }
 
     /**
@@ -45,6 +44,7 @@ object AudioPlayer {
     /**
      * Checks each non-looping audio source to see if it is completed
      */
+    @Deprecated("Shouldn't free stopped sounds as this destroys the audio source")
     fun pollForCompletedSounds() {
         for (index in sources.size - 1 downTo 0) {
             val state = alGetSourcei(sources[index].sourceId, AL_SOURCE_STATE)

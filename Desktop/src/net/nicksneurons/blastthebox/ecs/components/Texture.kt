@@ -1,17 +1,15 @@
 package net.nicksneurons.blastthebox.ecs.components
 
-import net.nicksneurons.blastthebox.ecs.Component
 import org.joml.Vector4f
 import org.lwjgl.opengl.GL33.*
 import org.lwjgl.opengl.GL44.GL_MIRROR_CLAMP_TO_EDGE
-import org.lwjgl.stb.STBImage.stbi_image_free
-import org.lwjgl.stb.STBImage.stbi_load_from_memory
 import org.lwjgl.system.MemoryStack.stackPush
-import org.lwjgl.system.MemoryUtil
 
-class Texture(val resourcePath: String) : Component() {
+abstract class Texture() {
 
-    val id: Int
+    val id: Int = glGenTextures()
+
+    protected abstract val target: Int
 
     var minFilter: TextureFilter = TextureFilter.NEAREST
         set(value) {
@@ -28,8 +26,8 @@ class Texture(val resourcePath: String) : Component() {
     var isMipmap: Boolean = false
         set(value) {
             field = value
-            glBindTexture(GL_TEXTURE_2D, id)
-            glGenerateMipmap(GL_TEXTURE_2D)
+            glBindTexture(target, id)
+            glGenerateMipmap(target)
             updateTextureFilter()
         }
 
@@ -42,66 +40,39 @@ class Texture(val resourcePath: String) : Component() {
     var wrapS: TextureWrap = TextureWrap.REPEAT
         set(value) {
             field = value
-            glBindTexture(GL_TEXTURE_2D, id)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS.value)
+            glBindTexture(target, id)
+            glTexParameteri(target, GL_TEXTURE_WRAP_S, wrapS.value)
         }
 
     var wrapT: TextureWrap = TextureWrap.REPEAT
         set(value) {
             field = value
-            glBindTexture(GL_TEXTURE_2D, id)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT.value)
+            glBindTexture(target, id)
+            glTexParameteri(target, GL_TEXTURE_WRAP_T, wrapT.value)
         }
 
     var wrapR: TextureWrap = TextureWrap.REPEAT
         set(value) {
             field = value
-            glBindTexture(GL_TEXTURE_2D, id)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, wrapR.value)
+            glBindTexture(target, id)
+            glTexParameteri(target, GL_TEXTURE_WRAP_R, wrapR.value)
         }
 
     var borderColor: Vector4f = Vector4f()
         set(value) {
             field = value
             stackPush().use() {
-                glBindTexture(GL_TEXTURE_2D, id)
+                glBindTexture(target, id)
 
                 stackPush().use() {
                     val buffer = it.mallocFloat(4)
-                    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, value.get(buffer))
+                    glTexParameterfv(target, GL_TEXTURE_BORDER_COLOR, value.get(buffer))
                 }
             }
         }
 
-    init {
-        stackPush().use() { stack ->
-            val w = stack.mallocInt(1)
-            val h = stack.mallocInt(1)
-            val comp = stack.mallocInt(1)
-            id = glGenTextures()
-            glBindTexture(GL_TEXTURE_2D, id)
-
-            val data = javaClass.getResourceAsStream(resourcePath).readAllBytes()
-            val bb = MemoryUtil.memAlloc(data.size).put(data).flip()
-            val pixels = stbi_load_from_memory(bb, w, h, comp, 4)
-
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w.get(0), h.get(0), 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels)
-
-            stbi_image_free(pixels)
-            MemoryUtil.memFree(bb)
-        }
-
-        // Apply defaults
-        updateTextureFilter()
-        wrapS = wrapS
-        wrapT = wrapT
-        wrapR = wrapR
-        borderColor = borderColor
-    }
-
-    private  fun updateTextureFilter() {
-        glBindTexture(GL_TEXTURE_2D, id)
+    protected fun updateTextureFilter() {
+        glBindTexture(target, id)
 
 
         val minFilterMode = if (isMipmap) {
@@ -118,19 +89,19 @@ class Texture(val resourcePath: String) : Component() {
             if (minFilter == TextureFilter.NEAREST) GL_NEAREST else GL_LINEAR
         }
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilterMode)
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, minFilterMode)
 
         val magFilterMode: Int = if (magFilter == TextureFilter.NEAREST) GL_NEAREST else GL_LINEAR
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilterMode)
+        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, magFilterMode)
     }
 
 
-    override fun free() {
+    fun free() {
         glDeleteTextures(id)
     }
 
-    fun bind() {
-        glBindTexture(GL_TEXTURE_2D, id)
+    open fun bind() {
+        glBindTexture(target, id)
     }
 }
 

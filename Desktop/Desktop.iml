@@ -20,5 +20,6 @@
     <orderEntry type="library" name="lwjgl" level="project" />
     <orderEntry type="library" name="lwjgl-stb" level="project" />
     <orderEntry type="library" name="lwjgl-openal" level="project" />
+    <orderEntry type="library" name="io.reactivex.rxjava3.rxkotlin" level="project" />
   </component>
 </module>

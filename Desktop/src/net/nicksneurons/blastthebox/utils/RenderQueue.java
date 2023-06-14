@@ -1,8 +1,14 @@
 package net.nicksneurons.blastthebox.utils;
 
+import net.nicksneurons.blastthebox.ecs.components.Renderable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * @deprecated Should use ECS architecture instead.
+ */
+@Deprecated()
 public class RenderQueue
 {
 	
@@ -27,7 +33,7 @@ public class RenderQueue
 	public void addToQueue(Renderable obj)
 	{
 		renderables.add(obj);
-		map.put(renderables.size()-1, renderables.get(renderables.size()-1).getLocation().getZ());
+//		map.put(renderables.size()-1, renderables.get(renderables.size()-1).getLocation().getZ());
 	}
 	
 	/**

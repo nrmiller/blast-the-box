@@ -5,7 +5,7 @@ import net.nicksneurons.blastthebox.ecs.Component
 
 class Material(
         val vertexShaderResourcePath: String,
-        val fragmentShaderResourcePath: String) : Component() {
+        val fragmentShaderResourcePath: String) {
 
     val program: ShaderProgram
 
@@ -15,5 +15,9 @@ class Material(
         val fragmentShaderSource = javaClass.getResource(fragmentShaderResourcePath).readText()
 
         program = ShaderProgram(vertexShaderSource, fragmentShaderSource)
+    }
+
+    companion object {
+        @JvmStatic val DEFAULT = Material("/shaders/default_shader.vert", "/shaders/default_shader.frag")
     }
 }
