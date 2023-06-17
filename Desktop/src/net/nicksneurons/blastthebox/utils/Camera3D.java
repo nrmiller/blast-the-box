@@ -1,6 +1,7 @@
 package net.nicksneurons.blastthebox.utils;
 
 import org.joml.Matrix4f;
+import org.joml.Vector2i;
 import org.joml.Vector3f;
 
 /**
@@ -14,7 +15,7 @@ import org.joml.Vector3f;
 * to allow for automatically updating the view.
 */
 
-public class Camera
+public class Camera3D implements Camera
 {
 	//Location variables
 	private float x =0, y =0, z =0;
@@ -32,12 +33,12 @@ public class Camera
 	private double pitchMin = -90, pitchMax = -90;
 	private boolean pitchRestricted = false;
 	
-	public Camera()
+	public Camera3D()
 	{
 		this(0, 0, 0);
 	}
 
-	public Camera(float xLoc, float yLoc, float zLoc)
+	public Camera3D(float xLoc, float yLoc, float zLoc)
 	{
 		setPosition(xLoc, yLoc, zLoc);
 	}
@@ -185,11 +186,39 @@ public class Camera
 		
 	}
 
+	private float fov = 90.0f;
+	public void setFov(float fov) {
+		this.fov = fov;
+	}
+	public float getFov() {
+		return fov;
+	}
+
+	private float near = 0.01f;
+	public void setNear(float near) {
+		this.near = near;
+	}
+	public float getNear() {
+		return near;
+	}
+
+	private float far = 4000.0f;
+	public void setFar(float far) {
+		this.far = far;
+	}
+	public float getFar() {
+		return far;
+	}
+
 	public Matrix4f getViewMatrix()
 	{
 		return new Matrix4f().lookAt(x, y, z, xL, yL, zL, upVector.x, upVector.y, upVector.z);
 	}
-	
+
+	public Matrix4f getProjectionMatrix(Vector2i screenSize) {
+		return new Matrix4f().perspective(getFov(), (float)screenSize.x / screenSize.y, getNear(), getFar());
+	}
+
 	public void setPitchRestrictions(double radMin, double radMax)
 	{
 		pitchRestricted = true;

@@ -1,7 +1,9 @@
 package net.nicksneurons.blastthebox.client
 
 import com.fractaldungeon.tools.*
+import net.nicksneurons.blastthebox.ecs.Viewport
 import net.nicksneurons.blastthebox.game.scenes.MainScene
+import net.nicksneurons.blastthebox.game.scenes.MainScreenScene
 import org.lwjgl.system.Configuration
 
 fun main() {
@@ -11,7 +13,14 @@ fun main() {
     Configuration.DEBUG_MEMORY_ALLOCATOR.set(true)
 
     val engine = Engine.instance
-    engine.setScene(MainScene())
+
+    engine.choreographer.begin(::MainScene).apply {
+        viewport = Viewport.DEFAULT
+    }
+
+    engine.choreographer.begin(::MainScreenScene).apply {
+        viewport = Viewport.DEFAULT
+    }
 
     GLWindow("Blast the Box", 1280, 720)
             .setGLProfile(GLProfile.OPENGL_CORE_PROFILE)

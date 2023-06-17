@@ -7,7 +7,6 @@ import net.nicksneurons.blastthebox.ecs.audio.AudioPlayer
 import net.nicksneurons.blastthebox.ecs.audio.AudioSource
 import net.nicksneurons.blastthebox.ecs.components.*
 import net.nicksneurons.blastthebox.game.entities.BoxFactory
-import net.nicksneurons.blastthebox.geometry.Point
 import net.nicksneurons.blastthebox.geometry.Square
 import org.joml.Vector2i
 import org.joml.Vector3f
@@ -50,7 +49,7 @@ class MainScreenScene: Scene() {
 
         val factory = BoxFactory()
         val grayBox1 = factory.createGreenBox()
-        grayBox1.transform.position = Vector3f(1.0f - 0.5f, -0.5f, 0.0f)
+        grayBox1.transform.position = Vector3f(1.0f - 0.5f, -0.5f, 2.0f)
         entities.add(grayBox1)
     }
 

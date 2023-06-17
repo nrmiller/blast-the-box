@@ -12,6 +12,8 @@ import org.joml.Vector3f
 
 class MainScene : Scene() {
 
+    private val currentScene: Scene = this
+
     override fun onSceneBegin() {
 
         // Setup scene
@@ -42,7 +44,7 @@ class MainScene : Scene() {
         val source = AudioSource(AudioClip("/audio/tracks/loop_two.ogg")).apply {
             relative = true
             pitch = 1.0f
-            gain = 0.8f
+            gain = 0.2f
         }
         AudioPlayer.loopSound(source)
 
@@ -61,8 +63,6 @@ class MainScene : Scene() {
 //                    isDirectional = true
 //                    direction = Vector3f(1.0f, 1.0f, 0.0f)
                 })
-
-                Engine.instance.setScene(MainScreenScene())
 
                 stop()
             }

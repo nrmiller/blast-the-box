@@ -4,10 +4,12 @@ import com.fractaldungeon.tools.GLEventListener
 import com.fractaldungeon.tools.UpdateListener
 import com.fractaldungeon.tools.input.KeyListener
 import com.fractaldungeon.tools.input.MouseListener
+import net.nicksneurons.blastthebox.ecs.Choreographer
 import net.nicksneurons.blastthebox.ecs.Entity
 import net.nicksneurons.blastthebox.ecs.Scene
 import net.nicksneurons.blastthebox.ecs.components.*
 import org.joml.Matrix4f
+import org.joml.Vector2i
 import org.joml.Vector3f
 import org.joml.Vector4f
 import org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT
@@ -26,19 +28,13 @@ import kotlin.math.sin
 
 class Engine private constructor(): GLEventListener, UpdateListener, MouseListener, KeyListener {
 
-    private lateinit var matrixBuffer: FloatBuffer
+    val choreographer = Choreographer()
 
     private val alContext: Long
     private val alCaps: ALCapabilities
 
     private var width: Int = 0
     private var height: Int = 0
-
-    private val distance = 20.0f
-    private val eyeHeight = 5.0f
-    private val angularSpeed = Math.PI / 4
-
-    private var angle = Math.PI * 0.5 //0.0
 
     init {
         val device = alcOpenDevice(null as String?)
@@ -90,67 +86,23 @@ class Engine private constructor(): GLEventListener, UpdateListener, MouseListen
 //        alDopplerFactor(0.1f)
     }
 
-    override fun onSurfaceCreated() {
+    override fun onSurfaceCreated(width: Int, height: Int) {
+        this.width = width
+        this.height = height
 
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
         glClearColor(0.086f, 0.173f, 0.380f, 1.0f)
-
-        matrixBuffer = MemoryUtil.memAllocFloat(16)
     }
 
     override fun onDrawFrame() {
-        val scene = currentScene ?: return
-
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 
-        val projectionMatrix = Matrix4f().perspective(Math.toRadians(45.0).toFloat(), aspect, 0.01f, 100.0f) // projection
-        val viewMatrix = Matrix4f().lookAt((distance * cos(angle)).toFloat(), eyeHeight, (distance * sin(angle)).toFloat(), // view
-                        0.0f, 0.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f)
-
-
-
-        val projViewMatrix = Matrix4f()
-        val invProjViewMatrix = Matrix4f()
-        projectionMatrix.mul(viewMatrix, projViewMatrix)
-        projViewMatrix.invert(invProjViewMatrix)
-
-
-        val renderables = scene.entities.flatMap { it.getAllComponents<RenderableComponent>() }
-
-        // we need to transform the entity to projection-view space before we can sort,
-        // effectively this sorts against the distance from the camera.
-        val zOrderedRenderables = renderables.sortedByDescending { invProjViewMatrix.transform(Vector4f(it.entity!!.transform.position, 1.0f)).z }
-
-        for (renderable in zOrderedRenderables) {
-            val transform = renderable.entity!!.transform
-
-            val material = renderable.material
-            material.program.use()
-
-
-            projectionMatrix.get(matrixBuffer)
-            glUniformMatrix4fv(glGetUniformLocation(material.program.id, "projection"), false, matrixBuffer)
-            viewMatrix.get(matrixBuffer)
-            glUniformMatrix4fv(glGetUniformLocation(material.program.id, "view"), false, matrixBuffer)
-            projViewMatrix.get(matrixBuffer)
-            glUniformMatrix4fv(glGetUniformLocation(material.program.id, "projectionView"), false, matrixBuffer)
-            matrixBuffer.clear()
-
-            Matrix4f()
-                    .rotate(transform.rotation.x, Vector3f(1.0f, 0.0f, 0.0f))
-                    .rotate(transform.rotation.y, Vector3f(0.0f, 1.0f, 0.0f))
-                    .rotate(transform.rotation.z, Vector3f(0.0f, 0.0f, 1.0f))
-                    .translate(transform.position.x, transform.position.y, transform.position.z)
-//                    .rotate(transform.rotation.x, transform.rotation.y, transform.rotation.z) // todo need quaternions
-                    .scale(transform.scale.x, transform.scale.y, transform.scale.z)
-                    .get(matrixBuffer)
-            glUniformMatrix4fv(glGetUniformLocation(material.program.id, "model"), false, matrixBuffer)
-
-            renderable.draw()
+        val zOrderedScenes = choreographer.scenes.sortedBy { it.renderLayer }
+        zOrderedScenes.forEach {
+            it.drawScene(Vector2i(width, height))
         }
 
 //        val free = getRuntime().freeMemory()
@@ -170,7 +122,7 @@ class Engine private constructor(): GLEventListener, UpdateListener, MouseListen
         get() = if (height == 0) 1.0f else width.toFloat() / height
 
     override fun onSurfaceDestroyed() {
-        MemoryUtil.memFree(matrixBuffer)
+        choreographer.finish()
 
         // Finalize OpenAL
         MemoryUtil.memFree(alCaps.addressBuffer)
@@ -178,120 +130,32 @@ class Engine private constructor(): GLEventListener, UpdateListener, MouseListen
         ALC.destroy()
     }
 
-
-    var currentScene: Scene? = null
-        private set
-
-    private var requestedScene: Scene? = null
-    fun setScene(scene: Scene) {
-        requestedScene = scene
-    }
-
     override fun onUpdate(delta: Double) {
-        val scene = currentScene
-
-        angle += angularSpeed * delta
-        if (scene != null) {
-            scene.onUpdate(delta)
-
-            freeMarkedEntities(currentScene)
-        }
-
-        // Perform scene change at the end
-        if (requestedScene != null) {
-            onSceneChanged(currentScene, requestedScene)
-            requestedScene = null
-        }
-    }
-
-    private fun onSceneChanged(oldScene: Scene?, newScene: Scene?) {
-        oldScene?.onSceneEnd()
-        freeScene(oldScene)
-
-        currentScene = newScene
-
-        newScene?.onSceneBegin()
-    }
-
-    private fun freeScene(scene: Scene?) {
-        if (scene == null) return
-
-        for (entity in scene.entities) {
-            entity.free()
-        }
-        scene.entities.clear()
-    }
-    private fun freeMarkedEntities(scene: Scene?) {
-        if (scene == null) return
-
-        for (index in scene.entities.size - 1 downTo 0) {
-            val entity = scene.entities[index]
-            if (entity.isMarkedForDeletion) {
-                entity.free()
-                scene.entities.removeAt(index)
-            } else {
-                freeMarkedComponents(entity)
-            }
-        }
-    }
-
-    private fun freeMarkedComponents(entity: Entity) {
-        for (index in entity.components.size - 1 downTo 0) {
-            val component = entity.components[index]
-            if (component.isMarkedForDeletion) {
-                component.free()
-                entity.removeComponentAt(index)
-            }
-        }
+        choreographer.onUpdate(delta)
     }
 
     override fun onKeyDown(key: Int, scancode: Int, modifiers: Int) {
-        val scene = currentScene ?: return
-
-        scene.onKeyDown(key, scancode, modifiers)
-        for (entity in scene.entities) {
-            entity.onKeyDown(key, scancode, modifiers)
-        }
+        choreographer.onKeyDown(key, scancode, modifiers)
     }
 
     override fun onKeyRepeat(key: Int, scancode: Int, modifiers: Int) {
-        val scene = currentScene ?: return
-
-        scene.onKeyRepeat(key, scancode, modifiers)
-        for (entity in scene.entities) {
-            entity.onKeyRepeat(key, scancode, modifiers)
-        }
+        choreographer.onKeyRepeat(key, scancode, modifiers)
     }
 
     override fun onKeyUp(key: Int, scancode: Int, modifiers: Int) {
-        val scene = currentScene ?: return
-
-        scene.onKeyUp(key, scancode, modifiers)
-        for (entity in scene.entities) {
-            entity.onKeyUp(key, scancode, modifiers)
-        }
+        choreographer.onKeyUp(key, scancode, modifiers)
     }
 
     override fun onMouseButtonDown(button: Int, modifiers: Int, x: Double, y: Double) {
         println("Mouse Event: ${if (button == GLFW_MOUSE_BUTTON_LEFT) "Left" else "Right"} pressed at ($x, $y)")
 
-        val scene = currentScene ?: return
-
-        scene.onMouseButtonDown(button, modifiers, x, y)
-        for (entity in scene.entities) {
-            entity.onMouseButtonDown(button, modifiers, x, y)
-        }
+        choreographer.onMouseButtonDown(button, modifiers, x, y)
     }
 
     override fun onMouseButtonUp(button: Int, modifiers: Int, x: Double, y: Double) {
         println("Mouse Event: ${if (button == GLFW_MOUSE_BUTTON_LEFT) "Left" else "Right"} released at ($x, $y)")
 
-        val scene = currentScene ?: return
-
-        scene.onMouseButtonUp(button, modifiers, x, y)
-        for (entity in scene.entities) {
-            entity.onMouseButtonUp(button, modifiers, x, y)
-        }
+        choreographer.onMouseButtonUp(button, modifiers, x, y)
     }
 
     companion object {
