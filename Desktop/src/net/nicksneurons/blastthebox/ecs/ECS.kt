@@ -14,8 +14,6 @@ import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL33
 import org.lwjgl.system.MemoryUtil
 import java.util.*
-import kotlin.math.cos
-import kotlin.math.sin
 
 /**
  * A GameObject is anything that can receive basic events from the engine.
@@ -32,12 +30,15 @@ open class GameObject : UpdateListener, KeyListener, MouseListener {
     override fun onMouseButtonDown(button: Int, modifiers: Int, x: Double, y: Double) { }
 
     override fun onMouseButtonUp(button: Int, modifiers: Int, x: Double, y: Double) { }
+
+    override fun onMouseMove(deltaX: Double, deltaY: Double) { }
 }
 
 open class Scene : GameObject() {
     var name: String? = null
 
-    val entities = mutableListOf<Entity>()
+    private val mutableEntities = mutableListOf<Entity>()
+    val entities: List<Entity> = Collections.unmodifiableList(mutableEntities)
 
     var camera: Camera = Camera3D()
 
@@ -49,6 +50,29 @@ open class Scene : GameObject() {
     open fun onSceneBegin() {}
     open fun onSceneEnd() {}
 
+    fun addEntity(entity: Entity) {
+        entity.onAddedToScene(this)
+        mutableEntities.add(entity)
+    }
+
+    fun addEntities(entities: Iterable<Entity>) {
+        entities.forEach { addEntity(it) }
+    }
+
+    fun removeEntity(entity: Entity) {
+        if (mutableEntities.contains(entity)) {
+            mutableEntities.remove(entity)
+            entity.onRemovedFromScene()
+        }
+    }
+
+    fun removeEntity(name: String) {
+        val result = entities.firstOrNull { name == it.name }
+        if (result != null) {
+            removeEntity(result)
+        }
+    }
+
     inline fun <reified T: Entity> getEntity(name: String? = null): T? {
         return entities.firstOrNull {
             // Return first matching entity of the type, or additionally with the matching name
@@ -59,6 +83,7 @@ open class Scene : GameObject() {
     override fun onUpdate(delta: Double) {
         // todo move into a scene with a real camera
         angle += angularSpeed * delta
+
 
         for (entity in entities) {
             entity.onUpdate(delta)
@@ -82,14 +107,8 @@ open class Scene : GameObject() {
                 (viewport.width * screenSize.x).toInt(),
                 (viewport.height * screenSize.y).toInt())
 
-        // todo since scene -> camera is 1:1 we should have multiple
-//        currentScene.camera.getProjectionMatrix(Vector2i(width, height))
-
-        val projectionMatrix = Matrix4f().perspective(Math.toRadians(45.0).toFloat(), aspect, 0.01f, 100.0f) // projection
-        val viewMatrix = Matrix4f().lookAt((distance * cos(angle)).toFloat(), eyeHeight, (distance * sin(angle)).toFloat(), // view
-                0.0f, 0.0f, 0.0f,
-                0.0f, 1.0f, 0.0f)
-
+        val projectionMatrix = camera.createProjectionMatrix()
+        val viewMatrix = camera.createViewMatrix()
 
 
         val projViewMatrix = Matrix4f()
@@ -137,7 +156,7 @@ open class Scene : GameObject() {
             val entity = entities[index]
             if (entity.isMarkedForDeletion) {
                 entity.free()
-                entities.removeAt(index)
+                mutableEntities.removeAt(index)
             } else {
                 freeMarkedComponents(entity)
             }
@@ -158,7 +177,7 @@ open class Scene : GameObject() {
         for (entity in entities) {
             entity.free()
         }
-        entities.clear()
+        mutableEntities.clear()
 
         MemoryUtil.memFree(matrixBuffer)
     }
@@ -192,6 +211,12 @@ open class Scene : GameObject() {
             it.onMouseButtonUp(button, modifiers, x, y)
         }
     }
+
+    override fun onMouseMove(deltaX: Double, deltaY: Double) {
+        entities.forEach {
+            it.onMouseMove(deltaX, deltaY)
+        }
+    }
 }
 
 open class Entity : GameObject() {
@@ -208,8 +233,8 @@ open class Entity : GameObject() {
     }
 
     fun addComponent(component: Component) {
-        mutableComponents.add(component)
         component.onAttached(this)
+        mutableComponents.add(component)
     }
 
     fun addComponents(components: Iterable<Component>) {
@@ -239,6 +264,13 @@ open class Entity : GameObject() {
         } as T?
     }
 
+    fun getComponentAt(index: Int): Component? {
+        if (components.isNotEmpty() && index >= 0 && index < components.size) {
+            return components[index]
+        }
+        return null
+    }
+
     inline fun <reified T: Component> getAllComponents(): Iterable<T> {
         return components.filterIsInstance<T>()
     }
@@ -255,11 +287,56 @@ open class Entity : GameObject() {
         }
     }
 
+    override fun onKeyDown(key: Int, scancode: Int, modifiers: Int) {
+        components.filterIsInstance<KeyListener>().forEach {
+            it.onKeyDown(key, scancode, modifiers)
+        }
+    }
+
+    override fun onKeyRepeat(key: Int, scancode: Int, modifiers: Int) {
+        components.filterIsInstance<KeyListener>().forEach {
+            it.onKeyRepeat(key, scancode, modifiers)
+        }
+    }
+
+    override fun onKeyUp(key: Int, scancode: Int, modifiers: Int) {
+        components.filterIsInstance<KeyListener>().forEach {
+            it.onKeyUp(key, scancode, modifiers)
+        }
+    }
+
+    override fun onMouseButtonDown(button: Int, modifiers: Int, x: Double, y: Double) {
+        components.filterIsInstance<MouseListener>().forEach {
+            it.onMouseButtonDown(button, modifiers, x, y)
+        }
+    }
+
+    override fun onMouseButtonUp(button: Int, modifiers: Int, x: Double, y: Double) {
+        components.filterIsInstance<MouseListener>().forEach {
+            it.onMouseButtonUp(button, modifiers, x, y)
+        }
+    }
+
+    override fun onMouseMove(deltaX: Double, deltaY: Double) {
+        components.filterIsInstance<MouseListener>().forEach {
+            it.onMouseMove(deltaX, deltaY)
+        }
+    }
+
     open fun free() {
         for (component in components) {
             component.free()
         }
         mutableComponents.clear()
+    }
+
+    var scene: Scene? = null
+    open fun onAddedToScene(scene: Scene) {
+        this.scene = scene
+    }
+
+    open fun onRemovedFromScene() {
+        queueFree()
     }
 }
 

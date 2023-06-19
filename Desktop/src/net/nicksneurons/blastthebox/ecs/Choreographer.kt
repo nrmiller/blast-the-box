@@ -96,4 +96,10 @@ class Choreographer: UpdateListener, MouseListener, KeyListener {
             it.onMouseButtonUp(button, modifiers, x, y)
         }
     }
+
+    override fun onMouseMove(deltaX: Double, deltaY: Double) {
+        scenes.forEach {
+            it.onMouseMove(deltaX, deltaY)
+        }
+    }
 }

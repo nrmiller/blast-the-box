@@ -22,17 +22,7 @@ fun main() {
         viewport = Viewport.DEFAULT
     }
 
-    GLWindow("Blast the Box", 1280, 720)
-            .setGLProfile(GLProfile.OPENGL_CORE_PROFILE)
-            .setGLClientAPI(GLClientAPI.OPENGL_API)
-            .setGLVersion(4, 2)
-            .setGLEventListener(engine)
-            .setUpdateListener(engine)
-            .setKeyListener(engine)
-            .setMouseListener(engine)
-            .addWindowListener(WindowListener())
-            .setWindowIconSet("/icon_16.png", "/icon_24.png")
-            .showDialog()
+    engine.window.showDialog()
 }
 
 class WindowListener : GLWindowListener {

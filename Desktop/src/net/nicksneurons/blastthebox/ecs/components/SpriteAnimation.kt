@@ -14,7 +14,8 @@ class SpriteAnimation(
 
     private val primitive = Square()
 
-    val totalDuration = frames * (frameDurationMs / 1000.0)
+    val totalDuration
+        get() = frames * (frameDurationMs / 1000.0)
 
     var animationState: AnimationState = AnimationState.Initial
         private set(value) {

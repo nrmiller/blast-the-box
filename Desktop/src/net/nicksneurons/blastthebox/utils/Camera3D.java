@@ -1,5 +1,6 @@
 package net.nicksneurons.blastthebox.utils;
 
+import net.nicksneurons.blastthebox.client.Engine;
 import org.joml.Matrix4f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
@@ -210,13 +211,15 @@ public class Camera3D implements Camera
 		return far;
 	}
 
-	public Matrix4f getViewMatrix()
+	public Matrix4f createViewMatrix()
 	{
 		return new Matrix4f().lookAt(x, y, z, xL, yL, zL, upVector.x, upVector.y, upVector.z);
 	}
 
-	public Matrix4f getProjectionMatrix(Vector2i screenSize) {
-		return new Matrix4f().perspective(getFov(), (float)screenSize.x / screenSize.y, getNear(), getFar());
+	public Matrix4f createProjectionMatrix() {
+		int width = Engine.getInstance().getWidth();
+		int height = Engine.getInstance().getHeight();
+		return new Matrix4f().perspective(getFov(), (float)width / height, getNear(), getFar());
 	}
 
 	public void setPitchRestrictions(double radMin, double radMax)

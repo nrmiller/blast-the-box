@@ -1,4 +1,4 @@
-package net.nicksneurons.blastthebox.ecs.audio
+package net.nicksneurons.blastthebox.audio
 
 import org.joml.Vector3f
 import org.lwjgl.openal.AL10.*

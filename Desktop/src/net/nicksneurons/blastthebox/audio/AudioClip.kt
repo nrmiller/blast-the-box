@@ -1,4 +1,4 @@
-package net.nicksneurons.blastthebox.ecs.audio
+package net.nicksneurons.blastthebox.audio
 
 import org.lwjgl.openal.AL10.*
 import org.lwjgl.stb.STBVorbis

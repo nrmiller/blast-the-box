@@ -1,6 +1,5 @@
 package net.nicksneurons.blastthebox.ecs.components
 
-import net.nicksneurons.blastthebox.ecs.Component
 import org.joml.Vector3f
 
 data class Transform(

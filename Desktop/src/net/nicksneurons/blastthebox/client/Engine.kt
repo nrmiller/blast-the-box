@@ -1,17 +1,11 @@
 package net.nicksneurons.blastthebox.client
 
-import com.fractaldungeon.tools.GLEventListener
-import com.fractaldungeon.tools.UpdateListener
+import com.fractaldungeon.tools.*
 import com.fractaldungeon.tools.input.KeyListener
 import com.fractaldungeon.tools.input.MouseListener
 import net.nicksneurons.blastthebox.ecs.Choreographer
-import net.nicksneurons.blastthebox.ecs.Entity
 import net.nicksneurons.blastthebox.ecs.Scene
-import net.nicksneurons.blastthebox.ecs.components.*
-import org.joml.Matrix4f
 import org.joml.Vector2i
-import org.joml.Vector3f
-import org.joml.Vector4f
 import org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT
 import org.lwjgl.openal.AL
 import org.lwjgl.openal.AL10.*
@@ -20,10 +14,7 @@ import org.lwjgl.openal.ALC11.*
 import org.lwjgl.openal.ALCapabilities
 import org.lwjgl.opengl.GL33.*
 import org.lwjgl.system.MemoryUtil
-import java.nio.FloatBuffer
 import java.nio.IntBuffer
-import kotlin.math.cos
-import kotlin.math.sin
 
 
 class Engine private constructor(): GLEventListener, UpdateListener, MouseListener, KeyListener {
@@ -32,9 +23,13 @@ class Engine private constructor(): GLEventListener, UpdateListener, MouseListen
 
     private val alContext: Long
     private val alCaps: ALCapabilities
+    val window: GLWindow
 
-    private var width: Int = 0
-    private var height: Int = 0
+    var width: Int = 0
+        private set
+
+    var height: Int = 0
+        private set
 
     init {
         val device = alcOpenDevice(null as String?)
@@ -74,7 +69,7 @@ class Engine private constructor(): GLEventListener, UpdateListener, MouseListen
 //        alEnable(AL_STEREO_ANGLES)
 
 
-        alListenerf(AL_GAIN, 1.0f) // global volume
+        alListenerf(AL_GAIN, 0.2f) // global volume
         alListener3f(AL_POSITION, 0.0f, 0.0f, 0.0f)
         alListener3f(AL_VELOCITY, 0.0f, 0.0f, 0.0f)
         alListenerfv(AL_ORIENTATION, floatArrayOf(
@@ -84,6 +79,17 @@ class Engine private constructor(): GLEventListener, UpdateListener, MouseListen
         alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED)
 //        alDopplerVelocity(1.0f)
 //        alDopplerFactor(0.1f)
+
+        window = GLWindow("Blast the Box", 1280, 720)
+                .setGLProfile(GLProfile.OPENGL_CORE_PROFILE)
+                .setGLClientAPI(GLClientAPI.OPENGL_API)
+                .setGLVersion(4, 2)
+                .setGLEventListener(this)
+                .setUpdateListener(this)
+                .setKeyListener(this)
+                .setMouseListener(this)
+                .addWindowListener(WindowListener())
+                .setWindowIconSet("/icon_16.png", "/icon_24.png")
     }
 
     override fun onSurfaceCreated(width: Int, height: Int) {
@@ -93,6 +99,8 @@ class Engine private constructor(): GLEventListener, UpdateListener, MouseListen
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+        glDisable(GL_CULL_FACE)
 
         glClearColor(0.086f, 0.173f, 0.380f, 1.0f)
     }
@@ -156,6 +164,10 @@ class Engine private constructor(): GLEventListener, UpdateListener, MouseListen
         println("Mouse Event: ${if (button == GLFW_MOUSE_BUTTON_LEFT) "Left" else "Right"} released at ($x, $y)")
 
         choreographer.onMouseButtonUp(button, modifiers, x, y)
+    }
+
+    override fun onMouseMove(deltaX: Double, deltaY: Double) {
+        choreographer.onMouseMove(deltaX, deltaY)
     }
 
     companion object {

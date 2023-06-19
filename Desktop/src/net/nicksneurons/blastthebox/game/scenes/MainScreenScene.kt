@@ -1,13 +1,16 @@
 package net.nicksneurons.blastthebox.game.scenes
 
+import net.nicksneurons.blastthebox.client.Engine
 import net.nicksneurons.blastthebox.ecs.Entity
 import net.nicksneurons.blastthebox.ecs.Scene
-import net.nicksneurons.blastthebox.ecs.audio.AudioClip
-import net.nicksneurons.blastthebox.ecs.audio.AudioPlayer
-import net.nicksneurons.blastthebox.ecs.audio.AudioSource
+import net.nicksneurons.blastthebox.audio.AudioClip
+import net.nicksneurons.blastthebox.audio.AudioPlayer
+import net.nicksneurons.blastthebox.audio.AudioSource
 import net.nicksneurons.blastthebox.ecs.components.*
-import net.nicksneurons.blastthebox.game.entities.BoxFactory
 import net.nicksneurons.blastthebox.geometry.Square
+import net.nicksneurons.blastthebox.physics.shapes.RectangleCollider
+import net.nicksneurons.blastthebox.utils.Camera2D
+import org.joml.Vector2f
 import org.joml.Vector2i
 import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
@@ -18,12 +21,14 @@ class MainScreenScene: Scene() {
     lateinit var alphabet: Entity
     lateinit var texture: TextureAtlas
 
-    lateinit var source: AudioSource
+    lateinit var click1Source: AudioSource
+    lateinit var click2Source: AudioSource
     lateinit var explosionSource: AudioSource
 
     override fun onSceneBegin() {
 
-        source = AudioSource(AudioClip("/audio/sounds/click2.ogg"))
+        click1Source = AudioSource(AudioClip("/audio/sounds/click.ogg"))
+        click2Source = AudioSource(AudioClip("/audio/sounds/click2.ogg"))
         explosionSource = AudioSource(AudioClip("/audio/sounds/boom.ogg"))
 
         texture = TextureAtlas("/textures/alphabet.png", Vector2i(64, 64)).apply {
@@ -32,35 +37,123 @@ class MainScreenScene: Scene() {
             isMipmap = false
         }
 
+        camera = Camera2D()
+
 //        texture = TextureAtlas("/textures/uv_checker.png", Vector2i(128, 128)).apply {
 //            index = 37
 //            minFilter = TextureFilter.LINEAR
 //        }
 
         alphabet = Entity().apply {
-            transform.position = Vector3f(0.0f, 0.0f, -1.0f)
+            transform.position = Vector3f(0.0f, 0.0f, 25.0f)
 
             addComponent(Mesh(Square(), texture).apply {
                 material = Material("/shaders/atlas.vert","/shaders/atlas.frag")
             })
         }
 
-        entities.add(alphabet)
+        addEntity(alphabet)
 
-        val factory = BoxFactory()
-        val grayBox1 = factory.createGreenBox()
-        grayBox1.transform.position = Vector3f(1.0f - 0.5f, -0.5f, 2.0f)
-        entities.add(grayBox1)
+        addEntity(Entity().apply {
+            transform.position = Vector3f(0.0f, 0.0f, 0.0f)
+            transform.scale = Vector3f(Engine.instance.width.toFloat(), Engine.instance.height.toFloat(), 0.0f)
+
+            addComponent(Mesh(Square(), Texture2D("/textures/menu_main.png")))
+        })
+
+        // todo need to make this resizable
+        val buttonW = Engine.instance.width * .22f
+        val buttonH = Engine.instance.height * .3f
+        val buttonX = (Engine.instance.width - 3 * buttonW) / 4
+        val buttonY = (Engine.instance.height - buttonH) / 2
+        val gap = (Engine.instance.width - buttonW * 3) / 4
+
+        addEntity(Entity().apply {
+            transform.position = Vector3f(buttonX, buttonY, 1.0f)
+            transform.scale = Vector3f(buttonW, buttonH, 0.0f)
+
+            val mesh = Mesh(Square(), Texture2D("/textures/button_easymode.png"));
+            addComponent(mesh)
+            addComponent(ClickableBody2D(RectangleCollider(Vector2f(buttonW, buttonH))).apply {
+
+                mouseEvents().filter { it is MouseEnter }.subscribe() {
+                    playClick1()
+                    mesh.texture.free()
+                    mesh.texture = Texture2D("/textures/button_easymode_hover.png")
+                }
+
+                mouseEvents().filter { it is MouseExit }.subscribe() {
+                    playClick1()
+                    mesh.texture.free()
+                    mesh.texture = Texture2D("/textures/button_easymode.png")
+                }
+
+                mouseEvents().filter { it is MouseDown }.subscribe() {
+                    playClick2()
+                    Engine.instance.choreographer.end(scene!!)
+                }
+            })
+        })
+
+        addEntity(Entity().apply {
+            transform.position = Vector3f(buttonX + buttonW + gap, buttonY, 1.0f)
+            transform.scale = Vector3f(buttonW, buttonH, 0.0f)
+
+            val mesh = Mesh(Square(), Texture2D("/textures/button_mediummode.png"))
+            addComponent(mesh)
+            addComponent(ClickableBody2D(RectangleCollider(Vector2f(buttonW, buttonH))).apply {
+
+                mouseEvents().filter { it is MouseEnter }.subscribe() {
+                    playClick1()
+                    mesh.texture.free()
+                    mesh.texture = Texture2D("/textures/button_mediummode_hover.png")
+                }
+
+                mouseEvents().filter { it is MouseExit }.subscribe() {
+                    playClick1()
+                    mesh.texture.free()
+                    mesh.texture = Texture2D("/textures/button_mediummode.png")
+                }
+
+                mouseEvents().filter { it is MouseDown }.subscribe() {
+                    playClick2()
+                    Engine.instance.choreographer.end(scene!!)
+                }
+            })
+        })
+
+        addEntity(Entity().apply {
+            transform.position = Vector3f(buttonX + (buttonW + gap) * 2, buttonY, 1.0f)
+            transform.scale = Vector3f(buttonW, buttonH, 0.0f)
+
+            val mesh = Mesh(Square(), Texture2D("/textures/button_hardmode.png"))
+            addComponent(mesh)
+            addComponent(ClickableBody2D(RectangleCollider(Vector2f(buttonW, buttonH))).apply {
+
+                mouseEvents().filter { it is MouseEnter }.subscribe() {
+                    playClick1()
+                    mesh.texture.free()
+                    mesh.texture = Texture2D("/textures/button_hardmode_hover.png")
+                }
+
+                mouseEvents().filter { it is MouseExit }.subscribe() {
+                    playClick1()
+                    mesh.texture.free()
+                    mesh.texture = Texture2D("/textures/button_hardmode.png")
+                }
+
+                mouseEvents().filter { it is MouseDown }.subscribe() {
+                    playClick2()
+                    Engine.instance.choreographer.end(scene!!)
+                }
+            })
+        })
     }
 
     fun spawnExplosion() {
         val explosion = Entity().also {entity ->
             entity.transform.position = Vector3f(-2.0f, 0.0f, 0.0f)
             entity.transform.scale = Vector3f(2.0f)
-
-//            addComponent(Mesh(Square(), texture).apply {
-//                material = Material("/shaders/atlas.vert", "/shaders.atlas.frag")
-//            })
 
             entity.addComponent(SpriteAnimation(TextureAtlas("/textures/explosion.png", Vector2i(64, 64)), 10, 40).apply {
                 material = Material("/shaders/atlas.vert", "/shaders/atlas.frag")
@@ -75,7 +168,7 @@ class MainScreenScene: Scene() {
             })
         }
 
-        entities.add(explosion)
+        addEntity(explosion)
 
         AudioPlayer.playSound(explosionSource.apply {
             pitch = 1.0f + 0.1f * Random.nextFloat() - 0.05f
@@ -89,19 +182,28 @@ class MainScreenScene: Scene() {
     override fun onKeyDown(key: Int, scancode: Int, modifiers: Int) {
         if (key == GLFW_KEY_RIGHT) {
             texture.index = ((texture.index + 1).mod(27))
-            playClick()
+            playClick1()
+            (camera as Camera2D).zoom *= 2
         }
         if (key == GLFW_KEY_LEFT) {
             texture.index = ((texture.index - 1).mod(27))
-            playClick()
+            playClick1()
+            (camera as Camera2D).zoom *= 0.5f
         }
         if (key == GLFW_KEY_UP) {
             alphabet.transform.scale = alphabet.transform.scale.mul(1.1f)
-            playClick()
+            playClick1()
         }
         if (key == GLFW_KEY_DOWN) {
             alphabet.transform.scale = alphabet.transform.scale.mul(0.9f)
-            playClick()
+            playClick1()
+        }
+
+        if (key== GLFW_KEY_C) {
+            (camera as Camera2D).isCentered = !(camera as Camera2D).isCentered
+        }
+        if (key== GLFW_KEY_Y) {
+            (camera as Camera2D).invertY = !(camera as Camera2D).invertY
         }
 
         if (key == GLFW_KEY_SPACE) {
@@ -112,26 +214,31 @@ class MainScreenScene: Scene() {
     override fun onKeyRepeat(key: Int, scancode: Int, modifiers: Int) {
         if (key == GLFW_KEY_RIGHT) {
             texture.index = ((texture.index + 1).mod(27))
-            playClick()
+            playClick1()
         }
         if (key == GLFW_KEY_LEFT) {
             texture.index = ((texture.index - 1).mod(27))
-            playClick()
+            playClick1()
         }
         if (key == GLFW_KEY_UP) {
             alphabet.transform.scale = alphabet.transform.scale.mul(1.1f)
-            playClick()
+            playClick1()
         }
         if (key == GLFW_KEY_DOWN) {
             alphabet.transform.scale = alphabet.transform.scale.mul(0.9f)
-            playClick()
+            playClick1()
         }
     }
 
-    private fun playClick() {
-        AudioPlayer.playSound(source.apply {
+    private fun playClick1() {
+        AudioPlayer.playSound(click1Source.apply {
             pitch = 1.0f + 0.1f * Random.nextFloat() - 0.05f
-            gain = 0.8f
+        })
+    }
+
+    private fun playClick2() {
+        AudioPlayer.playSound(click2Source.apply {
+            pitch = 1.0f + 0.1f * Random.nextFloat() - 0.05f
         })
     }
 
