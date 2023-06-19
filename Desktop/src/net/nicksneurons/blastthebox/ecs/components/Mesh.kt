@@ -1,7 +1,7 @@
 package net.nicksneurons.blastthebox.ecs.components
 
-import net.nicksneurons.blastthebox.ecs.Component
-import net.nicksneurons.blastthebox.geometry.Primitive
+import net.nicksneurons.blastthebox.graphics.geometry.Primitive
+import net.nicksneurons.blastthebox.graphics.textures.Texture
 
 class Mesh(var primitive: Primitive,
            var texture: Texture) : RenderableComponent() {

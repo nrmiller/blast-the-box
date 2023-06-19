@@ -1,4 +1,4 @@
-package net.nicksneurons.blastthebox.geometry;
+package net.nicksneurons.blastthebox.graphics.geometry;
 
 import miller.opengl.Dimension2d;
 import miller.opengl.Point2d;
@@ -93,9 +93,9 @@ public class Square extends Primitive
 		return normals;
 	}
 	
-	public boolean isTouched(Point2d p)
-	{
-		return (p.x >= loc.x && p.x < loc.x + scale.width &&
-		p.y >= loc.y && p.y < loc.y + scale.height);
-	}
+//	public boolean isTouched(Point2d p)
+//	{
+//		return (p.x >= loc.x && p.x < loc.x + scale.width &&
+//		p.y >= loc.y && p.y < loc.y + scale.height);
+//	}
 }

@@ -1,4 +1,4 @@
-package net.nicksneurons.blastthebox.ecs.components
+package net.nicksneurons.blastthebox.graphics.textures
 
 import net.nicksneurons.blastthebox.utils.ImageTools
 import org.joml.Vector2i

@@ -1,6 +1,6 @@
 package net.nicksneurons.blastthebox.game;
 
-import net.nicksneurons.blastthebox.geometry.Cube;
+import net.nicksneurons.blastthebox.graphics.geometry.Cube;
 import net.nicksneurons.blastthebox.utils.RouletteWheel;
 
 public class GameSettings

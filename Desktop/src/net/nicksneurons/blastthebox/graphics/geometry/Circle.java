@@ -1,18 +1,18 @@
-package net.nicksneurons.blastthebox.geometry;
+package net.nicksneurons.blastthebox.graphics.geometry;
 
-import miller.opengl.Point3d;
+import org.joml.Vector3d;
 import org.lwjgl.opengl.GL11;
 
 public class Circle extends Primitive
 {
-	private Point3d loc;
+	private Vector3d loc;
 	private double radius, height;
 	private int strips;
 	
 
 	public Circle()
 	{
-		this(new Point3d(0.0d, 0.0d, 0.0d), 1.0f, 20);
+		this(new Vector3d(0.0d, 0.0d, 0.0d), 1.0f, 20);
 	}
 
 	/**
@@ -24,12 +24,12 @@ public class Circle extends Primitive
 	 * @param radius - the distance from the center point to the circle's edge.
 	 * @param strips - the number of vertices along the circle's edge.
 	 */
-	public Circle(Point3d loc, float radius, int strips)
+	public Circle(Vector3d loc, float radius, int strips)
 	{
 		this(loc, radius, strips, 0);
 	}
 	
-	public Circle(Point3d loc, float radius, int strips, float height)
+	public Circle(Vector3d loc, float radius, int strips, float height)
 	{
 		this.loc = loc;
 		this.radius = radius;

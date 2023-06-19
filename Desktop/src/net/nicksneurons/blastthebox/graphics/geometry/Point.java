@@ -1,22 +1,37 @@
-package net.nicksneurons.blastthebox.geometry;
+package net.nicksneurons.blastthebox.graphics.geometry;
 
-import org.lwjgl.opengl.GL11;
+import miller.opengl.Point3d;
 
-public class Triangle extends Primitive
+import static org.lwjgl.opengl.GL11.GL_POINTS;
+
+public class Point extends Primitive
 {
-	public Triangle()
+	private Point3d vloc;
+
+	public Point()
 	{
+		this(new Point3d(0, 0, 0));
+	}
+	public Point(Point3d loc)
+	{
+		vloc = loc;
+
 		init();
 	}
-
+	
+	@Override
+	public int getRenderingMode()
+	{
+		return GL_POINTS;
+	}
+	
 	@Override
 	public float[] getVertexArray()
 	{
+		//Creates a centered Square
 		float[] vertices =
 		{
-			-.5f, -.5f, 0,
-			0.5f, -.5f, 0,
-			0, 0.5f, 0
+			(float)(vloc.x), (float)(vloc.y), (float)vloc.z,
 		};
 		return vertices;
 	}
@@ -32,11 +47,8 @@ public class Triangle extends Primitive
 	{
 		float[] texCoords = 
 		{
-			0,1,
-			1,1,
-			.5f,0
+			0, 0,
 		};
-		
 		return texCoords;
 	}
 	
@@ -45,25 +57,17 @@ public class Triangle extends Primitive
 	{
 		short[] indices = 
 		{
-				0, 1, 2
+				0
 		};
 		return indices;
 	}
-
-	@Override
-	public int getRenderingMode()
-	{
-		return GL11.GL_TRIANGLES;
-	}
-
 	@Override
 	public float[] getNormalArray()
 	{
 		float[] normals = 
 		{
-				0, 0, 1
+			0, 0, 0,
 		};
 		return normals;
 	}
-
 }

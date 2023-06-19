@@ -1,6 +1,6 @@
 package net.nicksneurons.blastthebox.client
 
-import net.nicksneurons.blastthebox.geometry.Square
+import net.nicksneurons.blastthebox.graphics.geometry.Square
 import org.joml.Matrix4f
 import org.joml.Vector3f
 import org.lwjgl.glfw.Callbacks.*

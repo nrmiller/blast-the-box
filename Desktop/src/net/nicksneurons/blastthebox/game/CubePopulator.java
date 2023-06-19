@@ -3,7 +3,7 @@ package net.nicksneurons.blastthebox.game;
 import miller.opengl.Dimension2d;
 import miller.opengl.Point3d;
 
-import net.nicksneurons.blastthebox.geometry.Square;
+import net.nicksneurons.blastthebox.graphics.geometry.Square;
 import net.nicksneurons.blastthebox.utils.S;
 
 public class CubePopulator

@@ -4,7 +4,8 @@ import com.fractaldungeon.tools.UpdateListener
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.PublishSubject
 import io.reactivex.rxjava3.subjects.Subject
-import net.nicksneurons.blastthebox.geometry.Square
+import net.nicksneurons.blastthebox.graphics.geometry.Square
+import net.nicksneurons.blastthebox.graphics.textures.TextureAtlas
 import org.joml.Math.floor
 
 class SpriteAnimation(

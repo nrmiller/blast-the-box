@@ -1,7 +1,7 @@
 package net.nicksneurons.blastthebox.utils
 
 import net.nicksneurons.blastthebox.client.Engine
-import net.nicksneurons.blastthebox.utils.Camera.Companion.createInverseProjectionViewMatrix
+import miller.util.jomlextensions.*
 import org.joml.Matrix4f
 import org.joml.Vector2f
 import org.joml.Vector3f
@@ -19,7 +19,7 @@ interface Camera {
             val viewMatrix = createViewMatrix()
 
             val projViewMatrix = Matrix4f()
-            return projViewMatrix.mul(viewMatrix, projViewMatrix)
+            return projViewMatrix.mul(viewMatrix, projectionMatrix)
         }
 
         @JvmStatic fun Camera.createInverseProjectionViewMatrix(): Matrix4f {
@@ -30,13 +30,13 @@ interface Camera {
         @JvmStatic fun Camera.screenToWorld2D(point: Vector2f): Vector2f {
             val invProjViewMatrix = createInverseProjectionViewMatrix()
             val result = invProjViewMatrix.transform(Vector4f(point.x, (Engine.instance.height - point.y), 0.0f, 0.0f))
-            return Vector2f(result.x, result.y)
+            return result.toVector2f()
         }
 
         @JvmStatic fun Camera.screenToWorld3D(point: Vector3f): Vector3f {
             val invProjViewMatrix = createInverseProjectionViewMatrix()
             val result = invProjViewMatrix.transform(Vector4f(point.x, (Engine.instance.height - point.y), point.z, 0.0f))
-            return Vector3f(result.x, result.y, result.z)
+            return result.toVector3f()
         }
     }
     

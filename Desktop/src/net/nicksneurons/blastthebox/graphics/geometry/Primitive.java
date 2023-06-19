@@ -1,10 +1,7 @@
-package net.nicksneurons.blastthebox.geometry;
+package net.nicksneurons.blastthebox.graphics.geometry;
 
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
-
-import miller.opengl.Dimension3d;
-import miller.opengl.Point3d;
 
 import net.nicksneurons.blastthebox.ecs.components.Renderable;
 import org.lwjgl.system.MemoryUtil;
@@ -20,24 +17,13 @@ public abstract class Primitive implements Renderable
 	public static final int ELEMENT_INDEX = 4;
 
 	public int vao;
-	public Point3d loc = new Point3d(0, 0, 0);
-	public Dimension3d scale = new Dimension3d(1, 1, 1);
-	public float yaw = 0, pitch = 0;
 	public int[] bufferIds = new int[5];
-	public int textureId = 0;
 	public float[] vertices;
 	public float[] colors;
 	public short[] indices;
 	public float[] texCoords;
 	public float[] normals;
 	public int renderMode;
-
-	public int texture;
-	
-	public Point3d getLocation()
-	{
-		return loc;
-	}
 	
 	/**
 	 * This method must return the rendering mode for
@@ -156,51 +142,9 @@ public abstract class Primitive implements Renderable
 	@Override
 	public void draw()
 	{
-//		glPushMatrix();
-//
-//		glTranslatef((float)loc.x, (float)loc.y, (float)loc.z);
-//		glRotatef(yaw, 0 , 1, 0);
-//		glRotatef(pitch, 1, 0, 0);
-//		glScalef((float)scale.width, (float)scale.height, (float)scale.depth);
-//
-//		glEnable(GL_TEXTURE_2D);
-//		glClientActiveTexture(GL_TEXTURE0);
-//		glBindTexture(GL_TEXTURE_2D, texture);
-
 		glBindVertexArray(vao);
 		glDrawElements(renderMode, indices.length, GL_UNSIGNED_SHORT, 0);
 		glBindVertexArray(0);
-
-//		glDisable(GL_TEXTURE_2D);
-//
-//		glPopMatrix();
-
-	}
-
-	public void setTexture(int id)
-	{
-		this.texture = id;
-	}
-	
-	public void setLocation(Point3d loc)
-	{
-		this.loc = loc;
-	}
-	public void setScale(Dimension3d scale)
-	{
-		this.scale = scale;
-	}
-	public void setYaw(float yaw)
-	{
-		this.yaw = yaw;
-	}
-	public void setPitch(float pitch)
-	{
-		this.pitch = pitch;
-	}
-	public int getTexture()
-	{
-		return texture;
 	}
 
 	public void free() {

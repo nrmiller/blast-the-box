@@ -3,7 +3,7 @@ package net.nicksneurons.blastthebox.game;
 import miller.opengl.Dimension3d;
 import miller.opengl.Point3d;
 
-import net.nicksneurons.blastthebox.geometry.*;
+import net.nicksneurons.blastthebox.graphics.geometry.*;
 import net.nicksneurons.blastthebox.utils.*;
 
 public class Row
@@ -69,16 +69,16 @@ public class Row
 					powerups[i] = SquareStorage.getSquare();
 					if(powerups[i]!=null)
 					{
-						powerups[i].setScale(new Dimension3d(.5, .5, 1));
-						powerups[i].setLocation(new Point3d(xLoc + .25f, 0, 0));
-						powerups[i].setTexture(pickPowerup());
+//						powerups[i].setScale(new Dimension3d(.5, .5, 1));
+//						powerups[i].setLocation(new Point3d(xLoc + .25f, 0, 0));
+//						powerups[i].setTexture(pickPowerup());
 					}
 				}
 				else
 				{//create a cube
 					cubes[i] = CubeStorage.getCube();
-					cubes[i].setScale(new Dimension3d(1, 1, 1));
-					cubes[i].setLocation(new Point3d(xLoc, 0, 0));
+//					cubes[i].setScale(new Dimension3d(1, 1, 1));
+//					cubes[i].setLocation(new Point3d(xLoc, 0, 0));
 					int health = pickHealth();
 					boolean ind = pickIndestructible();
 					int type = getCubeType(health, ind);
@@ -143,8 +143,8 @@ public class Row
 			{
 				xLoc = i - CubePopulator.FIELD_WIDTH/2;
 				cubes[i] = CubeStorage.getCube();
-				cubes[i].setScale(new Dimension3d(1, 1, 1));
-				cubes[i].setLocation(new Point3d(xLoc, 0, 0));
+//				cubes[i].setScale(new Dimension3d(1, 1, 1));
+//				cubes[i].setLocation(new Point3d(xLoc, 0, 0));
 				int health = pickHealth();
 				boolean ind = pickIndestructible();
 				int type = getCubeType(health, ind);
@@ -175,10 +175,10 @@ public class Row
 			{
 				if(powerups[i]!=null)
 				{
-					if(powerups[i].getTexture()!=0)
-					{
-						queue.addToQueue(powerups[i]);
-					}
+//					if(powerups[i].getTexture()!=0)
+//					{
+//						queue.addToQueue(powerups[i]);
+//					}
 				}
 			}
 		}
@@ -196,7 +196,7 @@ public class Row
 		{
 			if(cubes[i]!=null)
 			{
-				cubes[i].setLocation(new Point3d(cubes[i].loc.x, 0, -distance));
+//				cubes[i].setLocation(new Point3d(cubes[i].loc.x, 0, -distance));
 			}
 		}
 		if(powerups!=null)
@@ -205,7 +205,7 @@ public class Row
 			{
 				if(powerups[i]!=null)
 				{
-					powerups[i].setLocation(new Point3d(powerups[i].loc.x, 0, -distance));
+//					powerups[i].setLocation(new Point3d(powerups[i].loc.x, 0, -distance));
 				}
 			}
 		}
@@ -222,19 +222,19 @@ public class Row
 		{
 			if(cubes[i]!=null)
 			{
-				if(loc.x>=cubes[i].loc.x && loc.x<=cubes[i].loc.x + cubes[i].dim.width)
-				{//if x is between start X and end X of cube.
-					if(loc.y>=cubes[i].loc.y && loc.y<=cubes[i].loc.y + cubes[i].dim.height)
-					{//if y is inbetween.
-						if(loc.z>=distance-1 && loc.z<=distance)
-						{//if z is inbetween.
-							//Collided! Do something.
-							CubeStorage.giveCube(cubes[i]);
-							cubes[i] = null;
-							return true;
-						}
-					}
-				}
+//				if(loc.x>=cubes[i].loc.x && loc.x<=cubes[i].loc.x + cubes[i].dim.x)
+//				{//if x is between start X and end X of cube.
+//					if(loc.y>=cubes[i].loc.y && loc.y<=cubes[i].loc.y + cubes[i].dim.y)
+//					{//if y is inbetween.
+//						if(loc.z>=distance-1 && loc.z<=distance)
+//						{//if z is inbetween.
+//							//Collided! Do something.
+//							CubeStorage.giveCube(cubes[i]);
+//							cubes[i] = null;
+//							return true;
+//						}
+//					}
+//				}
 			}
 		}
 		
@@ -253,39 +253,39 @@ public class Row
 		{
 			if(powerups[i]!=null)
 			{
-				if(loc.x>=powerups[i].loc.x-.5 && loc.x<=powerups[i].loc.x + powerups[i].dim.width+.5)
-				{//if x is between start X and end X of cube.
-					if(loc.y>=powerups[i].loc.y && loc.y<=powerups[i].loc.y + powerups[i].dim.height+.5)
-					{//if y is inbetween.
-						if(loc.z>=distance-.02 && loc.z<=distance)
-						{//if z is inbetween.
-							//Collided! Do something.
-							int tex = powerups[i].getTexture();
-							powerups[i].setTexture(0);
-							SquareStorage.giveSquare(powerups[i]);
-							powerups[i]=null;
-							
-							return tex;
-						}
-						else
-						{
-							d = Math.abs(distance - loc.z);
-							
-							double difference = Math.abs(d - prevDist);
-							if(Math.round(difference * 10000)/10000 <= .5f && d < 0.5f)
-							{//If one iteration has passed and it is by the player.
-								int tex = powerups[i].getTexture();
-								powerups[i].setTexture(0);
-								SquareStorage.giveSquare(powerups[i]);
-								powerups[i]=null;
-								
-								return tex;
-							}
-							
-							prevDist = d;
-						}
-					}
-				}
+//				if(loc.x>=powerups[i].loc.x-.5 && loc.x<=powerups[i].loc.x + powerups[i].dim.width+.5)
+//				{//if x is between start X and end X of cube.
+//					if(loc.y>=powerups[i].loc.y && loc.y<=powerups[i].loc.y + powerups[i].dim.height+.5)
+//					{//if y is inbetween.
+//						if(loc.z>=distance-.02 && loc.z<=distance)
+//						{//if z is inbetween.
+//							//Collided! Do something.
+//							int tex = powerups[i].getTexture();
+//							powerups[i].setTexture(0);
+//							SquareStorage.giveSquare(powerups[i]);
+//							powerups[i]=null;
+//
+//							return tex;
+//						}
+//						else
+//						{
+//							d = Math.abs(distance - loc.z);
+//
+//							double difference = Math.abs(d - prevDist);
+//							if(Math.round(difference * 10000)/10000 <= .5f && d < 0.5f)
+//							{//If one iteration has passed and it is by the player.
+//								int tex = powerups[i].getTexture();
+//								powerups[i].setTexture(0);
+//								SquareStorage.giveSquare(powerups[i]);
+//								powerups[i]=null;
+//
+//								return tex;
+//							}
+//
+//							prevDist = d;
+//						}
+//					}
+//				}
 			}
 		}
 		

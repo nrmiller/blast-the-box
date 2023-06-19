@@ -1,4 +1,4 @@
-package net.nicksneurons.blastthebox.ecs.components
+package net.nicksneurons.blastthebox.graphics.textures
 
 import org.joml.Vector4f
 import org.lwjgl.opengl.GL33.*

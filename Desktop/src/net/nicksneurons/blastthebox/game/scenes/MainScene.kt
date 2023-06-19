@@ -1,7 +1,6 @@
 package net.nicksneurons.blastthebox.game.scenes
 
 import miller.util.TimedThread
-import net.nicksneurons.blastthebox.client.Engine
 import net.nicksneurons.blastthebox.ecs.Scene
 import net.nicksneurons.blastthebox.audio.AudioClip
 import net.nicksneurons.blastthebox.audio.AudioPlayer

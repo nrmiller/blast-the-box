@@ -1,10 +1,6 @@
-package net.nicksneurons.blastthebox.geometry;
+package net.nicksneurons.blastthebox.graphics.geometry;
 
-import miller.opengl.Dimension2d;
-import miller.opengl.Dimension3d;
-import miller.opengl.Point3d;
-
-//import com.millerni456.BlastTheBox.utils.Textures;
+import org.joml.Vector3d;
 
 public class Cube extends Cuboid
 {
@@ -14,12 +10,12 @@ public class Cube extends Cuboid
 
 	public Cube()
 	{
-		this(new Point3d(0, 0, 0), 1.0f, false);
+		this(new Vector3d(0, 0, 0), 1.0f, false);
 	}
 
-	public Cube(Point3d loc, float size, boolean cubemap)
+	public Cube(Vector3d loc, float size, boolean cubemap)
 	{
-		super(loc, new Dimension3d(size, size, size), cubemap);
+		super(loc, new Vector3d(size), cubemap);
 		health = 1;
 	}
 	

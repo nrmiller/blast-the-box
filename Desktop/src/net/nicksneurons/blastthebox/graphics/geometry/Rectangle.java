@@ -1,4 +1,4 @@
-package net.nicksneurons.blastthebox.geometry;
+package net.nicksneurons.blastthebox.graphics.geometry;
 
 import miller.opengl.Dimension2d;
 import miller.opengl.Point2d;

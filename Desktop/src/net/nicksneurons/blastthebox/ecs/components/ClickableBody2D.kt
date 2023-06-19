@@ -4,6 +4,7 @@ import com.fractaldungeon.tools.input.MouseListener
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.PublishSubject
 import io.reactivex.rxjava3.subjects.Subject
+import miller.util.jomlextensions.*
 import net.nicksneurons.blastthebox.client.input.Mouse
 import net.nicksneurons.blastthebox.ecs.Component
 import net.nicksneurons.blastthebox.ecs.Entity
@@ -29,7 +30,7 @@ class ClickableBody2D(var shape: Collider2D) : Component(), MouseListener {
     override fun onMouseButtonDown(button: Int, modifiers: Int, x: Double, y: Double) {
         val result = entity!!.scene!!.camera.screenToWorld2D(Vector2f(x.toFloat(), y.toFloat()))
 
-        if (shape.intersectsWith(Vector2f(result.x, result.y))) {
+        if (shape.intersectsWith(result)) {
             subject.onNext(MouseDown(button, modifiers, x, y))
         }
     }
@@ -37,7 +38,7 @@ class ClickableBody2D(var shape: Collider2D) : Component(), MouseListener {
     override fun onMouseButtonUp(button: Int, modifiers: Int, x: Double, y: Double) {
         val result = entity!!.scene!!.camera.screenToWorld2D(Vector2f(x.toFloat(), y.toFloat()))
 
-        if (shape.intersectsWith(Vector2f(result.x, result.y))) {
+        if (shape.intersectsWith(result)) {
             subject.onNext(MouseUp(button, modifiers, x, y))
         }
     }
@@ -57,7 +58,7 @@ class ClickableBody2D(var shape: Collider2D) : Component(), MouseListener {
         }
 
     override fun onMouseMove(deltaX: Double, deltaY: Double) {
-        val result = entity!!.scene!!.camera.screenToWorld2D(Vector2f(Mouse.position.x.toFloat(), Mouse.position.y.toFloat()))
+        val result = entity!!.scene!!.camera.screenToWorld2D(Mouse.position.toVector2f())
 
         isHovered = shape.intersectsWith(Vector2f(result.x, result.y))
         if (isHovered) {

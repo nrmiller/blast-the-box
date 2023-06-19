@@ -1,7 +1,7 @@
 package net.nicksneurons.blastthebox.utils;
 
 import miller.opengl.Point3d;
-import net.nicksneurons.blastthebox.geometry.Cube;
+import net.nicksneurons.blastthebox.graphics.geometry.Cube;
 
 public class CubeStorage
 {
@@ -12,7 +12,7 @@ public class CubeStorage
 	{
 		for(int i = 0; i<cubes.length; i++)
 		{
-			cubes[i] = new Cube(new Point3d(0, 0, 0), 1, false);
+			cubes[i] = new Cube();
 			cubes[i].init();
 		}
 	}

@@ -1,21 +1,20 @@
-package net.nicksneurons.blastthebox.geometry;
+package net.nicksneurons.blastthebox.graphics.geometry;
 
-import miller.opengl.Dimension3d;
-import miller.opengl.Point3d;
+import org.joml.Vector3d;
 import org.lwjgl.opengl.GL11;
 
 public class Cuboid extends Primitive
 {
-	private Point3d vloc;
-	public Dimension3d dim;
+	private Vector3d vloc;
+	public Vector3d dim;
 	public final boolean cubeMap;
 
-	public Cuboid(Dimension3d dim, boolean useCubeMap)
+	public Cuboid(Vector3d dim, boolean useCubeMap)
 	{
-		this(new Point3d(0.0d, 0.0d, 0.0d), dim, useCubeMap);
+		this(new Vector3d(0.0d, 0.0d, 0.0d), dim, useCubeMap);
 	}
 
-	public Cuboid(Point3d loc, Dimension3d dim, boolean useCubeMap)
+	public Cuboid(Vector3d loc, Vector3d dim, boolean useCubeMap)
 	{
 		this.vloc = loc;
 		this.dim = dim;
@@ -30,9 +29,9 @@ public class Cuboid extends Primitive
 		float x = (float) vloc.x;
 		float y = (float) vloc.y;
 		float z = (float) vloc.z;
-		float w = (float) dim.width;
-		float h = (float) dim.height;
-		float d = (float) dim.depth;
+		float w = (float) dim.x;
+		float h = (float) dim.y;
+		float d = (float) dim.z;
 		float[] vertices = 
 		{//6 sides times 4 verts times 3 components
 				//FRONT

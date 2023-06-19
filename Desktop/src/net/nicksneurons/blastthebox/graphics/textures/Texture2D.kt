@@ -1,4 +1,4 @@
-package net.nicksneurons.blastthebox.ecs.components
+package net.nicksneurons.blastthebox.graphics.textures
 
 import org.lwjgl.opengl.GL33.*
 import org.lwjgl.stb.STBImage.stbi_image_free

@@ -1,12 +1,10 @@
 package net.nicksneurons.blastthebox.game.entities
 
-import miller.opengl.Dimension3d
 import net.nicksneurons.blastthebox.ecs.Entity
 import net.nicksneurons.blastthebox.ecs.components.Mesh
-import net.nicksneurons.blastthebox.ecs.components.Texture
-import net.nicksneurons.blastthebox.ecs.components.Texture2D
-import net.nicksneurons.blastthebox.ecs.components.Transform
-import net.nicksneurons.blastthebox.geometry.Cube
+import net.nicksneurons.blastthebox.graphics.textures.Texture
+import net.nicksneurons.blastthebox.graphics.textures.Texture2D
+import net.nicksneurons.blastthebox.graphics.geometry.Cube
 
 class BoxFactory {
     fun createGrayBox(): Box {
