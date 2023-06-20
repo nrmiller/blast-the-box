@@ -9,7 +9,7 @@ abstract class Texture() {
 
     val id: Int = glGenTextures()
 
-    protected abstract val target: Int
+    abstract val target: Int
 
     var minFilter: TextureFilter = TextureFilter.NEAREST
         set(value) {

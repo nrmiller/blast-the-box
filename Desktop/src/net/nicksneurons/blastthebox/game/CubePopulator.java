@@ -1,10 +1,9 @@
 package net.nicksneurons.blastthebox.game;
 
-import miller.opengl.Dimension2d;
-import miller.opengl.Point3d;
-
 import net.nicksneurons.blastthebox.graphics.geometry.Square;
 import net.nicksneurons.blastthebox.utils.S;
+import org.joml.Vector2d;
+import org.joml.Vector3d;
 
 public class CubePopulator
 {
@@ -155,7 +154,7 @@ class FloorRow
 		for(int i = 0; i<numSquares; i++)
 		{
 			xLoc = i - CubePopulator.FIELD_WIDTH/2;
-			squares[i] = new Square(new Point3d(xLoc, 0, 1), new Dimension2d(1, 1));
+			squares[i] = new Square(new Vector3d(xLoc, 0, 1), new Vector2d(1, 1));
 			squares[i].init();
 		}
 	}

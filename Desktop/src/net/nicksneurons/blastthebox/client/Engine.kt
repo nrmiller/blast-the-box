@@ -5,6 +5,7 @@ import com.fractaldungeon.tools.input.KeyListener
 import com.fractaldungeon.tools.input.MouseListener
 import net.nicksneurons.blastthebox.ecs.Choreographer
 import net.nicksneurons.blastthebox.ecs.Scene
+import net.nicksneurons.blastthebox.game.Fonts
 import org.joml.Vector2i
 import org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT
 import org.lwjgl.openal.AL
@@ -83,7 +84,7 @@ class Engine private constructor(): GLEventListener, UpdateListener, MouseListen
         window = GLWindow("Blast the Box", 1280, 720)
                 .setGLProfile(GLProfile.OPENGL_CORE_PROFILE)
                 .setGLClientAPI(GLClientAPI.OPENGL_API)
-                .setGLVersion(4, 2)
+                .setGLVersion(4, 3)
                 .setGLEventListener(this)
                 .setUpdateListener(this)
                 .setKeyListener(this)
@@ -95,6 +96,8 @@ class Engine private constructor(): GLEventListener, UpdateListener, MouseListen
     override fun onSurfaceCreated(width: Int, height: Int) {
         this.width = width
         this.height = height
+
+        Fonts.loadFonts()
 
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_BLEND)
@@ -131,6 +134,7 @@ class Engine private constructor(): GLEventListener, UpdateListener, MouseListen
 
     override fun onSurfaceDestroyed() {
         choreographer.finish()
+        Fonts.freeFonts()
 
         // Finalize OpenAL
         MemoryUtil.memFree(alCaps.addressBuffer)

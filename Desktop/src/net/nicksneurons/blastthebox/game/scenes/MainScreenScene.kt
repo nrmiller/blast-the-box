@@ -7,7 +7,10 @@ import net.nicksneurons.blastthebox.audio.AudioClip
 import net.nicksneurons.blastthebox.audio.AudioPlayer
 import net.nicksneurons.blastthebox.audio.AudioSource
 import net.nicksneurons.blastthebox.ecs.components.*
+import net.nicksneurons.blastthebox.game.Fonts
 import net.nicksneurons.blastthebox.graphics.geometry.Square
+import net.nicksneurons.blastthebox.graphics.text.BitmapFont
+import net.nicksneurons.blastthebox.graphics.text.TextSprite
 import net.nicksneurons.blastthebox.graphics.textures.Texture2D
 import net.nicksneurons.blastthebox.graphics.textures.TextureAtlas
 import net.nicksneurons.blastthebox.graphics.textures.TextureFilter
@@ -28,6 +31,8 @@ class MainScreenScene: Scene() {
     lateinit var click2Source: AudioSource
     lateinit var explosionSource: AudioSource
 
+    lateinit var title: TextSprite
+
     override fun onSceneBegin() {
 
         click1Source = AudioSource(AudioClip("/audio/sounds/click.ogg"))
@@ -38,6 +43,11 @@ class MainScreenScene: Scene() {
             index = 7
             minFilter = TextureFilter.NEAREST
             isMipmap = false
+        }
+
+        title = TextSprite(Fonts.alphanumeric).apply {
+
+            text = "Hello World! 777"
         }
 
         camera = Camera2D()
@@ -56,6 +66,19 @@ class MainScreenScene: Scene() {
         }
 
         addEntity(alphabet)
+
+        addEntity(Entity().apply {
+            transform.position = Vector3f(150.0f, 500.0f, 24.0f)
+
+            addComponent(title)
+        })
+
+        addEntity(Entity().apply {
+            transform.position = Vector3f(100.0f, 100.0f, 24.0f)
+            transform.scale = Vector3f(100.0f, 100.0f, 0.0f)
+
+            addComponent(Mesh(Square(), texture.copyTextureAt(5)))
+        })
 
         addEntity(Entity().apply {
             transform.position = Vector3f(0.0f, 0.0f, 0.0f)
@@ -196,10 +219,14 @@ class MainScreenScene: Scene() {
         if (key == GLFW_KEY_UP) {
             alphabet.transform.scale = alphabet.transform.scale.mul(1.1f)
             playClick1()
+
+            title.sizePx++
         }
         if (key == GLFW_KEY_DOWN) {
             alphabet.transform.scale = alphabet.transform.scale.mul(0.9f)
             playClick1()
+
+            title.sizePx--
         }
 
         if (key== GLFW_KEY_C) {
@@ -212,6 +239,8 @@ class MainScreenScene: Scene() {
         if (key == GLFW_KEY_SPACE) {
             spawnExplosion()
         }
+
+        keyEntry(key, scancode)
     }
 
     override fun onKeyRepeat(key: Int, scancode: Int, modifiers: Int) {
@@ -230,6 +259,26 @@ class MainScreenScene: Scene() {
         if (key == GLFW_KEY_DOWN) {
             alphabet.transform.scale = alphabet.transform.scale.mul(0.9f)
             playClick1()
+        }
+
+        keyEntry(key, scancode)
+    }
+
+    private fun keyEntry(key: Int, scancode: Int) {
+        val char = glfwGetKeyName(key, scancode)
+        if (char != null) {
+            title.text += char
+        }
+        if (key == GLFW_KEY_SPACE) {
+            title.text += " "
+        }
+        if (key == GLFW_KEY_ENTER) {
+            title.text += "\n"
+        }
+        if (key == GLFW_KEY_BACKSPACE) {
+            if (title.text.isNotEmpty()) {
+                title.text = title.text.substring(0 until title.text.length - 1)
+            }
         }
     }
 

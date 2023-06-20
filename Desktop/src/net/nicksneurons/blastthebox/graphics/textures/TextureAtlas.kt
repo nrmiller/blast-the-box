@@ -3,6 +3,7 @@ package net.nicksneurons.blastthebox.graphics.textures
 import net.nicksneurons.blastthebox.utils.ImageTools
 import org.joml.Vector2i
 import org.lwjgl.opengl.GL42.*
+import org.lwjgl.opengl.GL43.glCopyImageSubData
 import org.lwjgl.stb.STBImage.stbi_image_free
 import org.lwjgl.stb.STBImage.stbi_load_from_memory
 import org.lwjgl.system.MemoryStack.stackPush
@@ -16,6 +17,8 @@ class TextureAtlas(
     val height: Int
     val columns: Int
     val rows: Int
+    val count: Int
+        get() = columns * rows
 
     override val target = GL_TEXTURE_2D_ARRAY
 
@@ -25,7 +28,7 @@ class TextureAtlas(
             val h = stack.mallocInt(1)
             val comp = stack.mallocInt(1)
 
-            glBindTexture(GL_TEXTURE_2D_ARRAY, id)
+            glBindTexture(target, id)
 
             val data = javaClass.getResourceAsStream(resourcePath).readAllBytes()
             val bb = MemoryUtil.memAlloc(data.size).put(data).flip()
@@ -74,7 +77,26 @@ class TextureAtlas(
         borderColor = borderColor
     }
 
+    fun copyTextureAt(index: Int) : Texture2D {
+        require(index in 0 until count) { "Index out of range!" }
+
+        val texture = Texture2D.createEmpty(subImageSizePx)
+
+        glCopyImageSubData(
+                id, target, 0,
+                0, 0, index,
+                texture.id, texture.target, 0,
+                0, 0, 0,
+                subImageSizePx.x, subImageSizePx.y, 1)
+
+        return texture
+    }
+
     var index: Int = 0
+        set(value) {
+            require(index in 0 until count) { "Index out of range!" }
+            field = value
+        }
 
     override fun bind() {
         super.bind()
