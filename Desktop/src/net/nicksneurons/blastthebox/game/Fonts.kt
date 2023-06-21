@@ -16,9 +16,9 @@ object Fonts {
     @JvmStatic fun loadFonts() {
 
         alphanumeric = FontLoader.loadFont(BitmapFont(
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZ! ".toList(),
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ! ™".toList(),
                 TextureAtlas("/textures/alphabet.png", Vector2i(64, 64))).mergeWith(
-                "abcdefghijklmnopqrstuvwxyz! ".toList(),
+                "abcdefghijklmnopqrstuvwxyz! ™".toList(),
                 TextureAtlas("/textures/alphabet.png", Vector2i(64, 64))).mergeWith(
                 "01234+56789%".toList(),
                 TextureAtlas("/textures/numbers.png", Vector2i(64, 64))))

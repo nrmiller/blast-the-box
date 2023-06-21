@@ -6,30 +6,39 @@ import net.nicksneurons.blastthebox.graphics.geometry.Square
 import org.joml.Vector2d
 import org.joml.Vector3d
 
-class TextSprite(fontId: Int) : RenderableComponent() {
+class TextSprite(val fontId: Int) : RenderableComponent() {
 
     private val font = FontLoader.getFont(fontId)
 
     var text: String = ""
         set(value) {
-            updatePrimitives(field, value)
-            field = value
+            if (value != field) {
+                updatePrimitives(field, value)
+                field = value
+            }
         }
 
     // todo how do we get dip with OpenGL?
     var sizePx: Int = 12
         set(value) {
-            field = value
-            updatePrimitives(text, text)
+            if (value != field) {
+                field = value
+                updatePrimitives(text, text)
+            }
         }
 
     var columns: Int = Int.MAX_VALUE
         set(value) {
-            field = value
-            updatePrimitives(text, text)
+            if (value != field) {
+                field = value
+                updatePrimitives(text, text)
+            }
         }
 
     private val meshes = mutableListOf<Mesh>()
+
+    var fontMetrics: FontMetrics = FontMetrics(text, sizePx, fontId, columns)
+        private set
 
     private fun updatePrimitives(oldText: String, newText: String) {
         for (mesh in meshes) {
@@ -63,6 +72,8 @@ class TextSprite(fontId: Int) : RenderableComponent() {
                 column++
             }
         }
+
+        fontMetrics = FontMetrics(newText, sizePx, fontId, columns)
     }
 
     override fun draw() {

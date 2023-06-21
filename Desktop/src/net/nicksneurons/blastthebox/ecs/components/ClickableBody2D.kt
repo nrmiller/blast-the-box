@@ -46,14 +46,13 @@ class ClickableBody2D(var shape: Collider2D) : Component(), MouseListener {
     var isHovered: Boolean = false
         private set(value) {
             if (field != value) {
+                field = value
 
                 if (value) {
                     subject.onNext(MouseEnter())
                 } else {
                     subject.onNext(MouseExit())
                 }
-
-                field = value
             }
         }
 

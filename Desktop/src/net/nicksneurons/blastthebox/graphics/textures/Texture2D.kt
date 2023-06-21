@@ -23,7 +23,9 @@ class Texture2D : Texture {
             val comp = stack.mallocInt(1)
             glBindTexture(target, id)
 
-            val data = javaClass.getResourceAsStream(resourcePath).readAllBytes()
+            val data = javaClass.getResourceAsStream(resourcePath)?.readAllBytes()
+            require(data != null) { "Invalid resource: '$resourcePath'"}
+
             val bb = MemoryUtil.memAlloc(data.size).put(data).flip()
             val pixels = stbi_load_from_memory(bb, w, h, comp, 4)
 

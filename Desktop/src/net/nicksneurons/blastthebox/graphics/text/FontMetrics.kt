@@ -1,13 +1,9 @@
 package net.nicksneurons.blastthebox.graphics.text
 
-import net.nicksneurons.blastthebox.ecs.components.Mesh
-import net.nicksneurons.blastthebox.graphics.geometry.Square
-import org.joml.Vector2d
-import org.joml.Vector3d
 import kotlin.math.max
 
 
-class FontMetrics(val text: String, val sizePx: Int, val fontId: Int, val columns: Int = Int.MAX_VALUE) {
+class FontMetrics(text: String, sizePx: Int, fontId: Int, columns: Int = Int.MAX_VALUE) {
 
     private val font = FontLoader.getFont(fontId)
 
@@ -20,10 +16,8 @@ class FontMetrics(val text: String, val sizePx: Int, val fontId: Int, val column
 
         var column = 0
         var xOffset = 0
-        var yOffset = 0
         for (char in text) {
             if (char == '\n' || column == columns) {
-                yOffset -= sizePx
                 maxHeight += sizePx
                 xOffset = 0
                 column = 0

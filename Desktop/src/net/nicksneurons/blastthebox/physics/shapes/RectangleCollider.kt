@@ -4,7 +4,7 @@ import net.nicksneurons.blastthebox.ecs.components.Transform
 import org.joml.Vector2f
 import kotlin.math.*
 
-class RectangleCollider(var size: Vector2f, var isCentered: Boolean = false) : Collider2D() {
+class RectangleCollider(var size: Vector2f = Vector2f(1.0f), var isCentered: Boolean = false) : Collider2D() {
 
     val transform
         get() = entity.get()?.transform ?: Transform()

@@ -96,8 +96,12 @@ abstract class Texture() {
     }
 
 
+    private var isFreed = false
     fun free() {
-        glDeleteTextures(id)
+        if (!isFreed) {
+            isFreed = true
+            glDeleteTextures(id)
+        }
     }
 
     open fun bind() {

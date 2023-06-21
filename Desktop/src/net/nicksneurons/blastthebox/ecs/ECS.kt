@@ -50,20 +50,23 @@ open class Scene : GameObject() {
     open fun onSceneBegin() {}
     open fun onSceneEnd() {}
 
-    fun addEntity(entity: Entity) {
+    fun addEntity(entity: Entity): Entity {
         entity.onAddedToScene(this)
         mutableEntities.add(entity)
+        return entity
     }
 
     fun addEntities(entities: Iterable<Entity>) {
         entities.forEach { addEntity(it) }
     }
 
-    fun removeEntity(entity: Entity) {
+    fun removeEntity(entity: Entity) : Boolean {
         if (mutableEntities.contains(entity)) {
             mutableEntities.remove(entity)
             entity.onRemovedFromScene()
+            return true
         }
+        return false
     }
 
     fun removeEntity(name: String) {
@@ -71,6 +74,10 @@ open class Scene : GameObject() {
         if (result != null) {
             removeEntity(result)
         }
+    }
+
+    operator fun get(name: String): Entity {
+        return entities.first {it.name == name }
     }
 
     inline fun <reified T: Entity> getEntity(name: String? = null): T? {
@@ -219,8 +226,7 @@ open class Scene : GameObject() {
     }
 }
 
-open class Entity : GameObject() {
-    var name: String? = null
+open class Entity(var name: String? = null) : GameObject() {
 
     val transform = Transform()
 
