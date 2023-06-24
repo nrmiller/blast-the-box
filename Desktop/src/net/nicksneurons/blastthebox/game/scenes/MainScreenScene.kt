@@ -28,6 +28,7 @@ import kotlin.random.Random
 
 class MainScreenScene: Scene() {
 
+    lateinit var bgMusic: AudioSource
     lateinit var click1Source: AudioSource
     lateinit var click2Source: AudioSource
     lateinit var explosionSource: AudioSource
@@ -38,6 +39,12 @@ class MainScreenScene: Scene() {
     lateinit var focusScope: FocusScope
 
     override fun onSceneBegin() {
+
+        bgMusic = AudioSource(AudioClip("/audio/tracks/loop_two.ogg")).apply {
+            pitch = 1.0f
+            gain = 0.8f
+        }
+        AudioPlayer.loopSound(bgMusic)
 
         click1Source = AudioSource(AudioClip("/audio/sounds/click.ogg"))
         click2Source = AudioSource(AudioClip("/audio/sounds/click2.ogg"))
@@ -119,12 +126,12 @@ class MainScreenScene: Scene() {
 
     private fun navigateToGame() {
         playClick2()
-        Engine.instance.choreographer.end(this)
+        transitionTo(::GameScene)
     }
 
     private fun navigateToOptions() {
         playClick2()
-        Engine.instance.choreographer.end(this)
+        finishScene()
     }
 
     private var angle = 0.0f
@@ -239,6 +246,8 @@ class MainScreenScene: Scene() {
     var index = 0
 
     override fun onKeyDown(key: Int, scancode: Int, modifiers: Int) {
+        super.onKeyDown(key, scancode, modifiers)
+
         if (key == GLFW_KEY_LEFT) {
             focusScope.previous()
         }
@@ -252,6 +261,8 @@ class MainScreenScene: Scene() {
     }
 
     override fun onKeyRepeat(key: Int, scancode: Int, modifiers: Int) {
+        super.onKeyRepeat(key, scancode, modifiers)
+
         if (key == GLFW_KEY_LEFT) {
             focusScope.previous()
         }
@@ -273,6 +284,8 @@ class MainScreenScene: Scene() {
     }
 
     override fun onSceneEnd() {
+        super.onSceneEnd()
 
+        AudioPlayer.stopSound(bgMusic)
     }
 }

@@ -2,19 +2,19 @@ package net.nicksneurons.blastthebox.utils;
 
 import java.util.Random;
 
-public class RouletteWheel
+public class RouletteWheel<T>
 {
-	public Object[] items;
+	public T[] items;
 	public double[] rarities;
 	public double[] mark_L;
 	public double[] mark_R;
 
-	public RouletteWheel(Object[] items, double[] rarities)
+	public RouletteWheel(T[] items, double[] rarities)
 	{
 		setItems(items, rarities);
 	}
 	
-	private void setItems(Object[] items, double[] rarities)
+	private void setItems(T[] items, double[] rarities)
 	{
 		this.items = items;
 		this.rarities = rarities;
@@ -31,7 +31,7 @@ public class RouletteWheel
 		}
 	}
 	
-	public Object spin(Random r)
+	public T spin(Random r)
 	{
 		float s = r.nextFloat();
 		

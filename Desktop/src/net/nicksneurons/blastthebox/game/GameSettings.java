@@ -37,18 +37,18 @@ public class GameSettings
 
 	}
 
-	public Powerup[] getPowerups()
+	public PowerupType[] getPowerups()
 	{
-		Powerup[] i = new Powerup[9];
-		i[0] = Powerup.NUKE;
-		i[1] = Powerup.STOPWATCH;
-		i[2] = Powerup.TRIPLE_FIRE;
-		i[3] = Powerup.PIERCE;
-		i[4] = Powerup.SHIELD;
-		i[5] = Powerup.HEART;
-		i[6] = Powerup.AMMO;
-		i[7] = Powerup.STRENGTH_ONE;
-		i[8] = Powerup.STRENGTH_TWO;
+		PowerupType[] i = new PowerupType[9];
+		i[0] = PowerupType.NUKE;
+		i[1] = PowerupType.STOPWATCH;
+		i[2] = PowerupType.TRIPLE_FIRE;
+		i[3] = PowerupType.PIERCE;
+		i[4] = PowerupType.SHIELD;
+		i[5] = PowerupType.HEART;
+		i[6] = PowerupType.AMMO;
+		i[7] = PowerupType.STRENGTH_ONE;
+		i[8] = PowerupType.STRENGTH_TWO;
 
 		return i;
 	}
@@ -66,8 +66,8 @@ public class GameSettings
 		return rarities;
 	}
 
-	public RouletteWheel createPowerupRoulette() {
-		return new RouletteWheel(getPowerups(), getPowerupRarities());
+	public RouletteWheel<PowerupType> createPowerupRoulette() {
+		return new RouletteWheel<>(getPowerups(), getPowerupRarities());
 	}
 
 	public Integer[] getCubeHealths()
@@ -91,8 +91,8 @@ public class GameSettings
 		return rarities;
 	}
 
-	public RouletteWheel createCubeHealthRoulette() {
-		return new RouletteWheel(getCubeHealths(), getCubeHealthRarities());
+	public RouletteWheel<Integer> createCubeHealthRoulette() {
+		return new RouletteWheel<>(getCubeHealths(), getCubeHealthRarities());
 	}
 	
 	public Integer[] getIndestructible()
@@ -110,7 +110,7 @@ public class GameSettings
 		return rarities;
 	}
 
-	public RouletteWheel createIndestructibleRoulette() {
-		return new RouletteWheel(getIndestructible(), getIndestructibleRarity());
+	public RouletteWheel<Integer> createIndestructibleRoulette() {
+		return new RouletteWheel<>(getIndestructible(), getIndestructibleRarity());
 	}
 }

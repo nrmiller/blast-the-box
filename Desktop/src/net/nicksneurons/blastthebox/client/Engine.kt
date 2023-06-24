@@ -12,6 +12,9 @@ import org.lwjgl.openal.AL10.*
 import org.lwjgl.openal.ALC
 import org.lwjgl.openal.ALC11.*
 import org.lwjgl.openal.ALCapabilities
+import org.lwjgl.openal.ALUtil
+import org.lwjgl.openal.EXTDisconnect.ALC_CONNECTED
+import org.lwjgl.openal.SOFTReopenDevice.alcReopenDeviceSOFT
 import org.lwjgl.opengl.GL33.*
 import org.lwjgl.system.MemoryUtil
 import java.nio.IntBuffer
@@ -19,6 +22,7 @@ import java.nio.IntBuffer
 
 class Engine private constructor(): GLEventListener, UpdateListener, MouseListener, KeyListener {
 
+    private val device: Long
     val choreographer = Choreographer()
 
     private val alContext: Long
@@ -32,7 +36,7 @@ class Engine private constructor(): GLEventListener, UpdateListener, MouseListen
         private set
 
     init {
-        val device = alcOpenDevice(null as String?)
+        device = alcOpenDevice(null as String?)
         alContext = alcCreateContext(device, null as IntBuffer?)
         println("Device: ${alcGetString(device, ALC_ALL_DEVICES_SPECIFIER)}")
         alcMakeContextCurrent(alContext)
@@ -102,7 +106,7 @@ class Engine private constructor(): GLEventListener, UpdateListener, MouseListen
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-        glDisable(GL_CULL_FACE)
+        glEnable(GL_CULL_FACE)
 
         glClearColor(0.086f, 0.173f, 0.380f, 1.0f)
     }

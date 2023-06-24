@@ -1,6 +1,6 @@
 package net.nicksneurons.blastthebox.physics.shapes
 
-import net.nicksneurons.blastthebox.ecs.components.Transform
+import net.nicksneurons.blastthebox.ecs.Transform
 import org.joml.Vector2f
 import kotlin.math.*
 

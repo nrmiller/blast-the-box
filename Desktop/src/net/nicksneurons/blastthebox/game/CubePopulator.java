@@ -1,5 +1,6 @@
 package net.nicksneurons.blastthebox.game;
 
+import net.nicksneurons.blastthebox.game.entities.Row;
 import net.nicksneurons.blastthebox.graphics.geometry.Square;
 import net.nicksneurons.blastthebox.utils.S;
 import org.joml.Vector2d;
@@ -30,7 +31,7 @@ public class CubePopulator
 	{
 		for(int i = 0; i<rows.length; i++)
 		{
-			rows[i] = new Row();
+//			rows[i] = new Row();
 		}
 	}
 	public synchronized static Row getRow()
@@ -65,7 +66,7 @@ public class CubePopulator
 	public synchronized static Row initializeRow(GameSettings settings)
 	{
 		int seq = S.ran.nextInt(1000);
-		if(seq > 992 && !sequencing && cooldown <= 0)//Every now and then sequencing will start.
+		if(seq > 992 && !sequencing && cooldown <= 0) //Every now and then sequencing will start.
 		{//cooldown prevents sequencing from happening directly after a sequence.
 			cooldown = 100;
 			sequencing = true;
@@ -83,7 +84,7 @@ public class CubePopulator
 		if(sequencing)//Blocks are now in an orderly format. (Paths created within them)
 		{
 			r = getRow();
-			r.init(seq_width, seq_index, seq_first);
+//			r.init(seq_width, seq_index, seq_first);
 			if(seq_first)
 			{
 				seq_first = false;
@@ -127,7 +128,7 @@ public class CubePopulator
 			cooldown -= 1;
 			if(cooldown < 0){cooldown = 0;}
 			r = getRow();
-			r.init(settings);
+//			r.init(settings);
 		}	
 		return r;
 		
