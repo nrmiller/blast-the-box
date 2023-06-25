@@ -9,8 +9,7 @@ import net.nicksneurons.blastthebox.game.Powerup
 import net.nicksneurons.blastthebox.utils.S
 
 class StandardRow(
-        private val settings: GameSettings,
-        startDistance: Float) : Row(startDistance) {
+        private val settings: GameSettings) : Row() {
 
     override fun onAddedToScene(scene: Scene) {
         super.onAddedToScene(scene)

@@ -8,7 +8,7 @@ import org.joml.Vector3f
 import org.joml.Vector4f
 import java.util.*
 
-data class Transform(
+class Transform(
         var position: Vector3f = Vector3f(),
         var rotation: Vector3f = Vector3f(),
         var scale: Vector3f = Vector3f(1.0f, 1.0f, 1.0f)) {
@@ -23,7 +23,7 @@ data class Transform(
     var parent: Transform? = null
         set(value) {
             if (value != field) {
-                require(value != this) { "Transform cannot parent to itself!" }
+                require(value !== this) { "Transform cannot parent to itself!" }
 
                 // Detach from old parent
                 field?.mutableChildren?.remove(this)
@@ -57,7 +57,8 @@ data class Transform(
     }
 
     fun getWorldPosition(): Vector4f {
-        return getWorldTransform().transform(position.toVector4f())
+        val parentTransform = parent?.getWorldTransform() ?: Matrix4f()
+        return parentTransform.transform(position.toVector4f())
     }
 
     override fun toString(): String {

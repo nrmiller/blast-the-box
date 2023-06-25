@@ -8,6 +8,7 @@ import net.nicksneurons.blastthebox.ecs.Scene
 import net.nicksneurons.blastthebox.game.Game.settings
 import net.nicksneurons.blastthebox.game.GameSettings
 import net.nicksneurons.blastthebox.game.entities.*
+import net.nicksneurons.blastthebox.game.sequencing.RowSequencer
 import net.nicksneurons.blastthebox.utils.Camera3D
 import net.nicksneurons.blastthebox.utils.S
 import org.joml.Vector3f
@@ -23,6 +24,8 @@ class GameScene: Scene() {
     val eyeHeight = 1.2f//0.7f
     val strafeSpeed = 10.0f // m/s
     val movementSpeed = 20.0f // m/s
+
+    private val sequencer = RowSequencer()
 
     override fun onSceneBegin() {
 
@@ -77,7 +80,11 @@ class GameScene: Scene() {
         if (accumulatedDistance > 1.0) {
             accumulatedDistance -= 1.0
 
-            rows.add(addEntity(initializeRow(settings)))
+            val row = sequencer.generateRow()
+            rows.add(addEntity(row).apply {
+                transform.position.z = -40.0f
+            })
+
         }
 
         moveCloser(delta.toFloat() * movementSpeed)
@@ -106,110 +113,5 @@ class GameScene: Scene() {
         super.onSceneEnd()
 
         AudioPlayer.stopSound(bgMusic)
-    }
-
-    /**
-     * The maximum number of cubes that stretch from left to right.
-     */
-    var FIELD_WIDTH = 20
-
-    /**
-     * The multiple specifying how many cubes should appear in a row. (on average)
-     * 100 being the highest, 0 being the lowest.
-     */
-    var DENSITY = 10
-
-    private var seq_width = 0
-    private var seq_index = 0
-    private var seq_first = true
-    private var sequencing = false
-    private var cooldown = 0
-
-    private var isChecker = false
-    private var checkerSize = 0
-    private var checkerCooldown = 0
-    private var checkerOffset = 0
-    private var isEven = true
-
-    fun initializeRow(settings: GameSettings) : Row {
-        val seq: Int = S.ran.nextInt(1000)
-        if (seq > 992 && !sequencing && cooldown <= 0) // Every now and then, sequencing will start.
-        {
-            println("Starting sequence: $seq")
-            //cooldown prevents sequencing from happening directly after a sequence.
-            cooldown = 100
-            sequencing = true
-            seq_width = S.ran.nextInt(3) + 8
-            seq_index = S.ran.nextInt(FIELD_WIDTH)
-            if (seq_index > FIELD_WIDTH - seq_width) //If index is beyond right side of field, change it.
-            {
-                seq_index = FIELD_WIDTH - seq_width
-            }
-        }
-        else if (seq > 990 && !isChecker) {
-            isChecker = true
-            checkerSize = S.ran.nextInt(4) + 1
-            checkerCooldown = checkerSize + 2
-//            checkerOffset = S.ran.nextInt(CubePopulator.FIELD_WIDTH)
-            isEven = S.ran.nextBoolean()
-        }
-
-        if (sequencing) //Blocks are now in an orderly format. (Paths created within them)
-        {
-            if (seq_first) {
-                seq_first = false
-            }
-            if (S.ran.nextInt(50) >= 30 && seq_width > 2) {
-                seq_width -= 1
-            }
-            val n: Int = S.ran.nextInt(100)
-            if (n >= 80 && seq_width > 2) {
-                seq_index += 1
-            } else if (n >= 60 && n < 80 && seq_width > 2) {
-                seq_index -= 1
-            }
-            if (seq_width <= 3) //If width becomes small enough, create opportunity to stop sequencing.
-            {
-                if (S.ran.nextInt(100) > 60) {
-                    sequencing = false
-                    seq_first = true
-                }
-            }
-            if (seq_index < 0) //Make sure that the index and width stay in bounds. (Left-side)
-            {
-                seq_index = 0
-                if (seq_width <= 1) {
-                    seq_width = 2
-                }
-            }
-
-            return SequencedRow(startDistance = 40.0f, seq_width, seq_index, seq_first)
-        }
-        else if (isChecker) {
-            checkerCooldown -= 1
-            if (checkerCooldown in 0..2) {
-                return Row(startDistance = 40.0f)
-            }
-            else if (checkerCooldown < 0) {
-                checkerCooldown = checkerSize + 2
-
-                if (S.ran.nextInt(100) > 5) {
-                    isEven = !isEven
-                    checkerOffset = S.ran.nextInt(2) * 1 * if (S.ran.nextBoolean()) -1 else 1
-                } else {
-                    isChecker = false
-                }
-            }
-
-            return EvenOddRow(isEven, checkerOffset, checkerSize, startDistance = 40.0f)
-        }
-        else {
-            cooldown -= 1
-            if (cooldown < 0) {
-                cooldown = 0
-            }
-
-            return StandardRow(settings, startDistance = 40.0f)
-        }
     }
 }

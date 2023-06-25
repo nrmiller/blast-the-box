@@ -10,8 +10,7 @@ import net.nicksneurons.blastthebox.utils.S
 class EvenOddRow(
         val isEven: Boolean,
         val startPos: Int,
-        var blockSize: Int,
-        startDistance: Float) : Row(startDistance) {
+        var blockSize: Int) : Row() {
 
     override fun onAddedToScene(scene: Scene) {
         super.onAddedToScene(scene)

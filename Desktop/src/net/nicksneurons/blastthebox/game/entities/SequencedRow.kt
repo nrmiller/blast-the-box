@@ -8,10 +8,9 @@ import kotlin.math.max
 import kotlin.math.min
 
 class SequencedRow(
-        startDistance: Float,
         var openingWidth: Int,
         val startPos: Int,
-        val first: Boolean): Row(startDistance) {
+        val first: Boolean): Row() {
 
     override fun onAddedToScene(scene: Scene) {
         super.onAddedToScene(scene)
