@@ -2,12 +2,16 @@ package net.nicksneurons.blastthebox.utils
 
 import net.nicksneurons.blastthebox.client.Engine
 import miller.util.jomlextensions.*
+import net.nicksneurons.blastthebox.ecs.Transform
 import org.joml.Matrix4f
 import org.joml.Vector2f
 import org.joml.Vector3f
 import org.joml.Vector4f
 
 interface Camera {
+
+    // todo consider exposing view matrix as a transform object
+//    val transform : Transform
 
     fun createViewMatrix() : Matrix4f
     fun createProjectionMatrix(): Matrix4f

@@ -3,6 +3,7 @@ package net.nicksneurons.blastthebox.client
 import com.fractaldungeon.tools.*
 import com.fractaldungeon.tools.input.KeyListener
 import com.fractaldungeon.tools.input.MouseListener
+import net.nicksneurons.blastthebox.audio.AudioPlayer
 import net.nicksneurons.blastthebox.ecs.Choreographer
 import net.nicksneurons.blastthebox.game.Fonts
 import org.joml.Vector2i
@@ -143,6 +144,8 @@ class Engine private constructor(): GLEventListener, UpdateListener, MouseListen
     }
 
     override fun onUpdate(delta: Double) {
+        AudioPlayer.pollForCompletedSounds()
+
         choreographer.onUpdate(delta)
     }
 

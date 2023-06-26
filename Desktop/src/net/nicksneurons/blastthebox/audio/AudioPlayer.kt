@@ -4,15 +4,15 @@ import org.lwjgl.openal.AL10.*
 
 object AudioPlayer {
 
-    private val sources = mutableListOf<AudioSource>()
+    private val sources = mutableMapOf<AudioSource, Boolean>()
 
-    fun playSound(source: AudioSource) {
-        sources.add(source)
+    fun playSound(source: AudioSource, freeOnStop: Boolean = false) {
+        sources[source] = freeOnStop
         source.play()
     }
 
     fun loopSound(source: AudioSource) {
-        sources.add(source)
+        sources[source] = false
         alSourcei(source.sourceId, AL_LOOPING, AL_TRUE)
         source.play()
     }
@@ -26,7 +26,10 @@ object AudioPlayer {
      */
     fun stopSound(source: AudioSource) {
         source.stop()
-        sources.remove(source)
+        val shouldFree = sources.remove(source) ?: false
+        if (shouldFree) {
+            source.free()
+        }
     }
 
     /**
@@ -34,9 +37,9 @@ object AudioPlayer {
      * @param shouldStopLooping - set to true to also stop looping sources
      */
     fun stopAllSounds(shouldStopLooping: Boolean = false) {
-        for (index in sources.size - 1 downTo 0) {
-            if (shouldStopLooping || alGetSourcei(sources[index].sourceId, AL_LOOPING) == AL_FALSE) {
-                stopSound(sources[index])
+        for (source in sources.keys.reversed()) {
+            if (shouldStopLooping || alGetSourcei(source.sourceId, AL_LOOPING) == AL_FALSE) {
+                stopSound(source)
             }
         }
     }
@@ -44,12 +47,11 @@ object AudioPlayer {
     /**
      * Checks each non-looping audio source to see if it is completed
      */
-    @Deprecated("Shouldn't free stopped sounds as this destroys the audio source")
     fun pollForCompletedSounds() {
-        for (index in sources.size - 1 downTo 0) {
-            val state = alGetSourcei(sources[index].sourceId, AL_SOURCE_STATE)
+        for (source in sources.keys.reversed()) {
+            val state = alGetSourcei(source.sourceId, AL_SOURCE_STATE)
             if (state == AL_INITIAL || state == AL_STOPPED) {
-                stopSound(sources[index])
+                stopSound(source)
             }
         }
     }

@@ -111,7 +111,8 @@ public class BulletTracker
 				piercingBullets--;
 			}
 			else
-			{//Turn off piercing if there are no piercing bullets.
+			{
+				//Turn off piercing if there are no piercing bullets.
 				hasPierce = false;
 			}
 			

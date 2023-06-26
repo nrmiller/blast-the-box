@@ -18,6 +18,8 @@ open class Scene() : GameObject() {
 
     val choreographer = Engine.instance.choreographer
 
+    private val entitiesToAdd = mutableListOf<Entity>()
+    private val entitiesToRemove = mutableListOf<Entity>()
     private val mutableEntities = mutableListOf<Entity>()
     val entities: List<Entity> = Collections.unmodifiableList(mutableEntities)
 
@@ -32,8 +34,19 @@ open class Scene() : GameObject() {
     open fun onSceneEnd() {}
 
     fun <T: Entity> addEntity(entity: T): T {
-        entity.onAddedToScene(this)
         mutableEntities.add(entity)
+        entity.onAddedToScene(this)
+        return entity
+    }
+
+    /**
+     * Delays the addition of the entity to occur during the update loop.
+     * This may be necessary to avoid throwing a [ConcurrentModificationException]
+     */
+    fun <T : Entity> queueAdd(entity: T) : T {
+        if (mutableEntities.contains(entity) || entitiesToAdd.contains(entity))
+            throw Exception("Entity already added!")
+        entitiesToAdd.add(entity)
         return entity
     }
 
@@ -68,7 +81,18 @@ open class Scene() : GameObject() {
         } as T?
     }
 
+    inline fun <reified T: Entity> getAllEntities(): Iterable<T> {
+        return entities.filterIsInstance<T>()
+    }
+
     override fun onUpdate(delta: Double) {
+        // add new entities
+        for (entity in entitiesToAdd) {
+            mutableEntities.add(entity)
+            entity.onAddedToScene(this)
+        }
+        entitiesToAdd.clear()
+
         for (entity in entities) {
             entity.onUpdate(delta)
         }
@@ -142,8 +166,18 @@ open class Scene() : GameObject() {
             val componentName = renderable.name ?: renderable.javaClass.kotlin.simpleName
 
             println("(layer=${renderable.renderLayer}) ${entity.transform} $entityName<$componentName>")
+            printTransform(1, entity.transform.parent)
         }
         println("=== END OF BATCH ===")
+    }
+
+    fun printTransform(tabs: Int, transform: Transform?) {
+        if (transform != null) {
+            val entityName = transform.entity.get()?.name ?: transform.entity.get()?.javaClass?.kotlin?.simpleName ?: "(no entity)"
+            println("\t".repeat(tabs) + transform.toString() + " $entityName")
+            printTransform(tabs + 1, transform.parent)
+        }
+
     }
 
     private fun freeMarkedEntities() {

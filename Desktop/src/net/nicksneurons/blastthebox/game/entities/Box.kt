@@ -2,15 +2,14 @@ package net.nicksneurons.blastthebox.game.entities
 
 import net.nicksneurons.blastthebox.ecs.Entity
 import net.nicksneurons.blastthebox.ecs.components.Mesh
+import net.nicksneurons.blastthebox.ecs.components.StaticBody3D
 import net.nicksneurons.blastthebox.game.Game.cube_health
 import net.nicksneurons.blastthebox.game.Game.indestructible
 import net.nicksneurons.blastthebox.graphics.geometry.Cube
-import net.nicksneurons.blastthebox.graphics.geometry.Cuboid
 import net.nicksneurons.blastthebox.graphics.textures.Texture
 import net.nicksneurons.blastthebox.graphics.textures.Texture2D
+import net.nicksneurons.blastthebox.physics.shapes.BoxCollider
 import net.nicksneurons.blastthebox.utils.S
-import org.joml.Vector3d
-import org.joml.Vector3f
 
 class BoxFactory {
     fun createGrayBox(): Box {
@@ -34,10 +33,42 @@ class BoxFactory {
     }
 }
 
-class Box(val slot: Int, val type: BoxType): Entity() {
+class Box(val slot: Int, type: BoxType): Entity() {
+
+    private val mesh: Mesh
+
+    var health = type.health
+        private set(value) {
+            if (field != value) {
+                field = value
+                type = BoxType.getCubeType(value, type.isIndestructible)
+            }
+        }
+
+    var type: BoxType = type
+        private set(value) {
+            if (field != value) {
+                field = value
+                mesh.texture = type.createTexture()
+            }
+        }
+
     init {
-        addComponent(Mesh(Cube(), type.createTexture()))
+        mesh = addComponent(Mesh(Cube(), type.createTexture()))
+        addComponent(StaticBody3D(BoxCollider()))
         transform.position.x = slot.toFloat()
+    }
+
+    val indestructible: Boolean
+        get() = (type.isIndestructible)
+
+    fun doDamage(damage: Int) {
+        if (!indestructible) {
+            health -= damage
+            if (health <= 0) {
+                queueFree()
+            }
+        }
     }
 
     companion object {
@@ -57,8 +88,6 @@ class Box(val slot: Int, val type: BoxType): Entity() {
             }
             return b
         }
-
-
     }
 }
 

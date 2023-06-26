@@ -3,11 +3,14 @@ package net.nicksneurons.blastthebox.ecs
 import com.fractaldungeon.tools.UpdateListener
 import com.fractaldungeon.tools.input.KeyListener
 import com.fractaldungeon.tools.input.MouseListener
+import java.lang.ref.WeakReference
 import java.util.*
 
 open class Entity(var name: String? = null) : GameObject() {
 
-    val transform = Transform()
+    val transform = Transform().also {
+        it.entity = WeakReference(this)
+    }
 
     private val mutableComponents = mutableListOf<Component>()
     val components: List<Component> = Collections.unmodifiableList(mutableComponents)
@@ -17,7 +20,7 @@ open class Entity(var name: String? = null) : GameObject() {
         isMarkedForDeletion = true
     }
 
-    fun addComponent(component: Component): Component {
+    fun <T : Component> addComponent(component: T): T {
         component.onAttached(this)
         mutableComponents.add(component)
         return component

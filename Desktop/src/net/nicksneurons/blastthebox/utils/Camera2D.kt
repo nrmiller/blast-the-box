@@ -1,8 +1,13 @@
 package net.nicksneurons.blastthebox.utils
 
+import miller.util.jomlextensions.toVector3f
 import net.nicksneurons.blastthebox.client.Engine
+import net.nicksneurons.blastthebox.ecs.Transform
 import org.joml.Matrix4f
 import org.joml.Vector2f
+import org.joml.Vector3f
+import kotlin.math.cos
+import kotlin.math.sin
 
 class Camera2D: Camera {
     var zoom: Float = 1.0f
@@ -15,11 +20,22 @@ class Camera2D: Camera {
 
     var position = Vector2f(0.0f, 0.0f)
 
+    var rotation: Float = 0.0f
+
+//    override val transform: Transform
+//        get() {
+//            return Transform(
+//                position.toVector3f(),
+//                Vector3f(0.0f, 0.0f, rotation),
+//                Vector3f(zoom, zoom, 0.0f)
+//            )
+//        }
+
     override fun createViewMatrix(): Matrix4f {
         return Matrix4f().lookAt(
                 position.x, position.y, 50.0f,
                 position.x, position.y, 0.0f,
-                0.0f, 1.0f, 0.0f)
+                cos(Math.PI.toFloat() / 2.0f + rotation), sin(Math.PI.toFloat() / 2.0f + rotation), 0.0f)
     }
 
     override fun createProjectionMatrix(): Matrix4f {

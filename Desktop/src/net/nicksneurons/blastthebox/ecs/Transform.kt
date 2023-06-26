@@ -6,6 +6,7 @@ import miller.util.jomlextensions.toVector4f
 import org.joml.Matrix4f
 import org.joml.Vector3f
 import org.joml.Vector4f
+import java.lang.ref.WeakReference
 import java.util.*
 
 class Transform(
@@ -34,6 +35,8 @@ class Transform(
                 field = value
             }
         }
+
+    var entity = WeakReference<Entity?>(null)
 
 
     private val mutableChildren = mutableListOf<Transform>()

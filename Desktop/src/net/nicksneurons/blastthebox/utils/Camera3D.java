@@ -249,30 +249,8 @@ public class Camera3D implements Camera
 	}
 	
 	//GETS
-	public float getXPos()
-	{
-		return x;
-	}
-	public float getYPos()
-	{
-		return y;
-	}
-	public float getZPos()
-	{
-		return z;
-	}
-	public float getXLPos()
-	{
-		return xL;
-	}
-	public float getYLPos()
-	{
-		return yL;
-	}
-	public float getZLPos()
-	{
-		return zL;
-	}
+	public Vector3f getPosition() { return new Vector3f(x, y, z); }
+	public Vector3f getLookAt() { return new Vector3f(xL, yL, zL); }
 	public Vector3f getUpVector()
 	{
 		return upVector;

@@ -5,9 +5,11 @@ import net.nicksneurons.blastthebox.audio.AudioPlayer
 import net.nicksneurons.blastthebox.audio.AudioSource
 import net.nicksneurons.blastthebox.client.Engine
 import net.nicksneurons.blastthebox.ecs.Scene
+import net.nicksneurons.blastthebox.ecs.components.Mesh
 import net.nicksneurons.blastthebox.game.entities.*
 import net.nicksneurons.blastthebox.game.sequencing.RowSequencer
 import net.nicksneurons.blastthebox.utils.Camera3D
+import net.nicksneurons.blastthebox.utils.S
 import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
 import kotlin.math.abs
@@ -24,7 +26,9 @@ class GameScene: Scene() {
 
     val eyeHeight = 1.2f//0.7f
     val strafeSpeed = 10.0f // m/s
-    val movementSpeed = 20.0f // m/s
+
+    lateinit var player: Player
+    lateinit var gun: Gun
 
     private val sequencer = RowSequencer()
 
@@ -55,6 +59,11 @@ class GameScene: Scene() {
         floors.add(addEntity(FloorTile().apply {
             transform.position = Vector3f(-10.0f, 0.0f, -60.0f)
         }))
+
+        player = addEntity(Player().apply {
+//            addComponent<BoxCollider>()
+        })
+        gun = addEntity(Gun(player))
     }
 
     private var accumulatedDistance: Double = 0.0
@@ -73,6 +82,15 @@ class GameScene: Scene() {
         if (glfwGetKey(Engine.instance.window.handle, GLFW_KEY_RIGHT) == GLFW_TRUE) {
             xInput += 1.0f
         }
+        if (glfwGetKey(Engine.instance.window.handle, GLFW_KEY_ESCAPE) == GLFW_TRUE) {
+            Engine.instance.choreographer.end(this)
+            Engine.instance.choreographer.begin(::MainScreenScene)
+            return
+        }
+        if (glfwGetKey(Engine.instance.window.handle, GLFW_KEY_SPACE) == GLFW_TRUE) {
+            gun.fire()
+        }
+
 
         val targetSpeed = xInput * strafeSpeed
         if (abs(xInput) > Float.MIN_VALUE) {
@@ -87,33 +105,26 @@ class GameScene: Scene() {
             strafeRight((delta * xVelocity.x).toFloat())
 
             val angleOffUp = (Math.PI.toFloat() / 2.0f) - bobAngle.toDouble()
-            if (abs(bobAngle) > Float.MIN_VALUE) {
-                println(bobAngle)
-            }
             val targetUp = Vector3f(cos(angleOffUp).toFloat(), sin(angleOffUp).toFloat(), 0.0f)
             setUpVector(targetUp.x, targetUp.y, targetUp.z)
         }
-
-        if (glfwGetKey(Engine.instance.window.handle, GLFW_KEY_ESCAPE) == GLFW_TRUE) {
-            Engine.instance.choreographer.end(this)
-            Engine.instance.choreographer.begin(::MainScreenScene)
-        }
+        player.transform.position = (camera as Camera3D).position
 
 
         // to spawn a row at every meter
         // the spawn time should be inversely correlated to the movement speed
-        accumulatedDistance += delta * movementSpeed
+        accumulatedDistance += delta * player.movementSpeed
         if (accumulatedDistance > 1.0) {
             accumulatedDistance -= 1.0
 
-            val row = sequencer.generateRow()
+            val row = sequencer.generateRow() // TestRow()
             rows.add(addEntity(row).apply {
                 transform.position.z = -40.0f
             })
 
         }
 
-        moveCloser(delta.toFloat() * movementSpeed)
+        moveCloser(delta.toFloat() * player.movementSpeed)
     }
 
     fun moveCloser(amount: Float) {
@@ -146,5 +157,18 @@ class GameScene: Scene() {
         to.sub(this, diff)
 
         return if (diff.length() <= delta || diff.length() < 0.00001) to else Vector3f().add(this).add(diff.normalize().mul(delta.toFloat()))
+    }
+}
+
+class TestRow() : Row() {
+    override fun onAddedToScene(scene: Scene) {
+        super.onAddedToScene(scene)
+
+        if (S.ran.nextInt(100) > 95) {
+            scene.addEntity(Box.createRandom(0)).also {
+                it.getComponent<Mesh>()!!.renderLayer = 1
+                it.transform.parent = this.transform
+            }
+        }
     }
 }
