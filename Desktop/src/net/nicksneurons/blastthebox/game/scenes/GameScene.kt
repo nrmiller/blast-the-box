@@ -5,14 +5,15 @@ import net.nicksneurons.blastthebox.audio.AudioPlayer
 import net.nicksneurons.blastthebox.audio.AudioSource
 import net.nicksneurons.blastthebox.client.Engine
 import net.nicksneurons.blastthebox.ecs.Scene
-import net.nicksneurons.blastthebox.game.Game.settings
-import net.nicksneurons.blastthebox.game.GameSettings
 import net.nicksneurons.blastthebox.game.entities.*
 import net.nicksneurons.blastthebox.game.sequencing.RowSequencer
 import net.nicksneurons.blastthebox.utils.Camera3D
-import net.nicksneurons.blastthebox.utils.S
 import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sign
+import kotlin.math.sin
 
 class GameScene: Scene() {
 
@@ -58,14 +59,39 @@ class GameScene: Scene() {
 
     private var accumulatedDistance: Double = 0.0
 
+    var acceleration = 60.0f
+    var friction = 80.0f
+    var xVelocity = Vector3f(0.0f)
+
     override fun onUpdate(delta: Double) {
         super.onUpdate(delta)
 
+        var xInput = 0.0f
         if (glfwGetKey(Engine.instance.window.handle, GLFW_KEY_LEFT) == GLFW_TRUE) {
-            (camera as Camera3D).strafeLeft((delta * strafeSpeed).toFloat())
+            xInput -= 1.0f
         }
         if (glfwGetKey(Engine.instance.window.handle, GLFW_KEY_RIGHT) == GLFW_TRUE) {
-            (camera as Camera3D).strafeRight((delta * strafeSpeed).toFloat())
+            xInput += 1.0f
+        }
+
+        val targetSpeed = xInput * strafeSpeed
+        if (abs(xInput) > Float.MIN_VALUE) {
+            xVelocity = xVelocity.moveToward(Vector3f(targetSpeed, 0.0f, 0.0f), delta * acceleration)
+        } else {
+            xVelocity = xVelocity.moveToward(Vector3f(0.0f), delta * friction)
+        }
+
+        val bobAngle = Math.toRadians(3.0).toFloat() * (xVelocity.length() / strafeSpeed) * (xVelocity.x.sign)
+
+        (camera as Camera3D).apply {
+            strafeRight((delta * xVelocity.x).toFloat())
+
+            val angleOffUp = (Math.PI.toFloat() / 2.0f) - bobAngle.toDouble()
+            if (abs(bobAngle) > Float.MIN_VALUE) {
+                println(bobAngle)
+            }
+            val targetUp = Vector3f(cos(angleOffUp).toFloat(), sin(angleOffUp).toFloat(), 0.0f)
+            setUpVector(targetUp.x, targetUp.y, targetUp.z)
         }
 
         if (glfwGetKey(Engine.instance.window.handle, GLFW_KEY_ESCAPE) == GLFW_TRUE) {
@@ -113,5 +139,12 @@ class GameScene: Scene() {
         super.onSceneEnd()
 
         AudioPlayer.stopSound(bgMusic)
+    }
+
+    fun Vector3f.moveToward(to: Vector3f, delta: Double): Vector3f {
+        val diff = Vector3f()
+        to.sub(this, diff)
+
+        return if (diff.length() <= delta || diff.length() < 0.00001) to else Vector3f().add(this).add(diff.normalize().mul(delta.toFloat()))
     }
 }

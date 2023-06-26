@@ -12,9 +12,6 @@ import org.lwjgl.openal.AL10.*
 import org.lwjgl.openal.ALC
 import org.lwjgl.openal.ALC11.*
 import org.lwjgl.openal.ALCapabilities
-import org.lwjgl.openal.ALUtil
-import org.lwjgl.openal.EXTDisconnect.ALC_CONNECTED
-import org.lwjgl.openal.SOFTReopenDevice.alcReopenDeviceSOFT
 import org.lwjgl.opengl.GL33.*
 import org.lwjgl.system.MemoryUtil
 import java.nio.IntBuffer

@@ -171,6 +171,12 @@ public class Camera3D implements Camera
 		float radians = (float) Math.toRadians(degrees);
 		rotateZ(radians);
 	}
+
+	public void setUpVector(float x, float y, float z) {
+		upVector.x = x;
+		upVector.y = y;
+		upVector.z = z;
+	}
 	
 	//change the up reference point based on roll
 	private void updateUpVector()

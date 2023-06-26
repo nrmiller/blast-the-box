@@ -5,9 +5,12 @@ import net.nicksneurons.blastthebox.ecs.components.Mesh
 import net.nicksneurons.blastthebox.game.Game.cube_health
 import net.nicksneurons.blastthebox.game.Game.indestructible
 import net.nicksneurons.blastthebox.graphics.geometry.Cube
+import net.nicksneurons.blastthebox.graphics.geometry.Cuboid
 import net.nicksneurons.blastthebox.graphics.textures.Texture
 import net.nicksneurons.blastthebox.graphics.textures.Texture2D
 import net.nicksneurons.blastthebox.utils.S
+import org.joml.Vector3d
+import org.joml.Vector3f
 
 class BoxFactory {
     fun createGrayBox(): Box {
