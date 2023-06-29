@@ -180,7 +180,7 @@ class GameScene: Scene() {
             PowerupType.STOPWATCH -> {
                 performStopwatch()
             }
-            else -> {}
+            else -> { }
         }
         powerup.queueFree()
     }
