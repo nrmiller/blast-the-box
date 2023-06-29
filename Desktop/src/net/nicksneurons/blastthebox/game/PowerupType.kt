@@ -2,21 +2,24 @@ package net.nicksneurons.blastthebox.game
 
 import net.nicksneurons.blastthebox.ecs.Entity
 import net.nicksneurons.blastthebox.ecs.components.Mesh
+import net.nicksneurons.blastthebox.ecs.components.StaticBody3D
 import net.nicksneurons.blastthebox.graphics.geometry.Square
 import net.nicksneurons.blastthebox.graphics.textures.Texture2D
+import net.nicksneurons.blastthebox.physics.shapes.BoxCollider
 import org.joml.Vector3f
 
-class Powerup(val slot: Int, val type: PowerupType?) : Entity() {
+class Powerup(val slot: Int, val type: PowerupType) : Entity() {
     init {
         transform.scale = Vector3f(0.5f, 0.5f, 1.0f)
         transform.position = Vector3f(slot + 0.25f, 0.0f, 0.0f)
 
+        addComponent(StaticBody3D(BoxCollider(size = Vector3f(0.75f)).apply {
+            offset = Vector3f(-0.125f, 0.125f, 0.0f)
+        }))
 
-        if (type != null) {
-            addComponent(Mesh(Square(), Texture2D(type.path)).apply {
-                renderLayer = 1
-            })
-        }
+        addComponent(Mesh(Square(), Texture2D(type.path)).apply {
+            renderLayer = 1
+        })
     }
 }
 

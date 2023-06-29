@@ -31,7 +31,7 @@ class EvenOddRow(
 
             val xLoc = slot - CubePopulator.FIELD_WIDTH / 2
             if (filled) {
-                boxes.add(scene.addEntity(Box.createRandom(slot = xLoc).also {
+                mutableBoxes.add(scene.addEntity(Box.createRandom(slot = xLoc).also {
                     it.getComponent<Mesh>()!!.renderLayer = 1
                     it.transform.parent = this.transform
                 }))
@@ -39,9 +39,12 @@ class EvenOddRow(
                 // chance of power up
                 val chance = S.ran.nextFloat()
                 if (chance <= .05f) { //5% chance of spawning a powerup.
-                    powerups.add(scene.addEntity(Powerup(slot = xLoc, type = Game.powerups.spin(S.ran)).also {
-                        it.transform.parent = this.transform
-                    }))
+                    val type = Game.powerups.spin(S.ran)
+                    if (type != null) {
+                        mutablePowerups.add(scene.addEntity(Powerup(slot = xLoc, type = type).also {
+                            it.transform.parent = this.transform
+                        }))
+                    }
                 }
             }
         }

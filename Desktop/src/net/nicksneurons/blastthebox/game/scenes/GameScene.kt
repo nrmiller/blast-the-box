@@ -1,23 +1,32 @@
 package net.nicksneurons.blastthebox.game.scenes
 
+import miller.opengl.Point3d
+import miller.util.jomlextensions.toVector3f
 import net.nicksneurons.blastthebox.audio.AudioClip
 import net.nicksneurons.blastthebox.audio.AudioPlayer
 import net.nicksneurons.blastthebox.audio.AudioSource
 import net.nicksneurons.blastthebox.client.Engine
 import net.nicksneurons.blastthebox.ecs.Scene
 import net.nicksneurons.blastthebox.ecs.components.Mesh
+import net.nicksneurons.blastthebox.game.Powerup
+import net.nicksneurons.blastthebox.game.PowerupType
 import net.nicksneurons.blastthebox.game.entities.*
 import net.nicksneurons.blastthebox.game.sequencing.RowSequencer
+import net.nicksneurons.blastthebox.physics.Physics
 import net.nicksneurons.blastthebox.utils.Camera3D
 import net.nicksneurons.blastthebox.utils.S
 import org.joml.Vector3f
+import org.joml.Vector4f
 import org.lwjgl.glfw.GLFW.*
+import org.lwjgl.opengl.GL11.glClearColor
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sign
 import kotlin.math.sin
 
 class GameScene: Scene() {
+
+    val stopwatchTracker = StopwatchTracker()
 
     lateinit var bgMusic: AudioSource
 
@@ -28,7 +37,6 @@ class GameScene: Scene() {
     val strafeSpeed = 10.0f // m/s
 
     lateinit var player: Player
-    lateinit var gun: Gun
 
     private val sequencer = RowSequencer()
 
@@ -60,10 +68,7 @@ class GameScene: Scene() {
             transform.position = Vector3f(-10.0f, 0.0f, -60.0f)
         }))
 
-        player = addEntity(Player().apply {
-//            addComponent<BoxCollider>()
-        })
-        gun = addEntity(Gun(player))
+        player = addEntity(Player())
     }
 
     private var accumulatedDistance: Double = 0.0
@@ -88,7 +93,7 @@ class GameScene: Scene() {
             return
         }
         if (glfwGetKey(Engine.instance.window.handle, GLFW_KEY_SPACE) == GLFW_TRUE) {
-            gun.fire()
+            player.gun.fire()
         }
 
 
@@ -125,6 +130,89 @@ class GameScene: Scene() {
         }
 
         moveCloser(delta.toFloat() * player.movementSpeed)
+
+        stopwatchTracker.onUpdate(delta)
+        glClearColor(stopwatchTracker.clearColor.x, stopwatchTracker.clearColor.y, stopwatchTracker.clearColor.z, stopwatchTracker.clearColor.w)
+        player.movementSpeedMultipier = stopwatchTracker.movementSpeedMultiplier
+
+        val powerups = getAllEntities<Powerup>()
+        Physics.checkCollisionsWith(player, powerups, ::onCollectPowerup)
+
+        val boxes = getAllEntities<Box>()
+        Physics.checkCollisionsWith(player, boxes, ::onTouchedBox)
+    }
+
+    private fun onCollectPowerup(powerup: Powerup) {
+        when (powerup.type) {
+            PowerupType.HEART -> {
+                AudioPlayer.playSound(AudioSource(AudioClip("/audio/sounds/heartbeat.ogg")), true)
+                player.health++
+            }
+            PowerupType.SHIELD -> {
+                AudioPlayer.playSound(AudioSource(AudioClip("/audio/sounds/shield.ogg")), true)
+                player.hasShield = true
+            }
+            PowerupType.STRENGTH_ONE -> {
+                AudioPlayer.playSound(AudioSource(AudioClip("/audio/sounds/green_up.ogg")), true)
+                player.strength = 2
+            }
+            PowerupType.STRENGTH_TWO -> {
+                AudioPlayer.playSound(AudioSource(AudioClip("/audio/sounds/blue_up.ogg")), true)
+                player.strength = 3
+            }
+            PowerupType.AMMO -> {
+                AudioPlayer.playSound(AudioSource(AudioClip("/audio/sounds/reload.ogg")).apply {
+                    gain = 4.0f
+                }, true)
+                player.gun.ammo += S.ran.nextInt(4) + 4
+            }
+            PowerupType.TRIPLE_FIRE -> {
+                AudioPlayer.playSound(AudioSource(AudioClip("/audio/sounds/triple.ogg")), true)
+                player.hasTripleFire = true
+            }
+            PowerupType.PIERCE -> {
+                AudioPlayer.playSound(AudioSource(AudioClip("/audio/sounds/pierce.ogg")), true)
+                player.gun.piercingBullets += S.ran.nextInt(2)  + 2
+            }
+            PowerupType.NUKE -> {
+                performNuclearExplosion()
+            }
+            PowerupType.STOPWATCH -> {
+                performStopwatch()
+            }
+            else -> {}
+        }
+        powerup.queueFree()
+    }
+
+    private fun performNuclearExplosion() {
+        val tallies = mutableMapOf<BoxType, Int>()
+        AudioPlayer.playSound(AudioSource(AudioClip("/audio/sounds/nuclear_explosion.ogg")), true)
+        for (row in rows) {
+            for (box in row.boxes) {
+                if (box.isMarkedForDeletion)
+                    continue
+
+                val position = box.transform.getWorldPosition().toVector3f()
+                spawnExplosion(Vector3f(position.x, position.y, position.z + 1.0f))
+                tallies[box.type] = (tallies[box.type] ?: 0) + 1
+                box.queueFree()
+            }
+        }
+    }
+
+    private fun spawnExplosion(position: Vector3f) {
+        val explosion = Explosion(player, position, shouldPlaySound = false)
+        queueAdd(explosion)
+    }
+
+    private fun performStopwatch() {
+        AudioPlayer.playSound(AudioSource(AudioClip("/audio/sounds/stopwatch.ogg")), true)
+        stopwatchTracker.slowTime()
+    }
+
+    private fun onTouchedBox(box: Box) {
+        player.doDamage(1)
     }
 
     fun moveCloser(amount: Float) {
@@ -157,6 +245,22 @@ class GameScene: Scene() {
         to.sub(this, diff)
 
         return if (diff.length() <= delta || diff.length() < 0.00001) to else Vector3f().add(this).add(diff.normalize().mul(delta.toFloat()))
+    }
+
+    override fun onKeyDown(key: Int, scancode: Int, modifiers: Int) {
+        super.onKeyDown(key, scancode, modifiers)
+
+        if (key == GLFW_KEY_N) {
+            performNuclearExplosion()
+        }
+        if (key == GLFW_KEY_S) {
+            performStopwatch()
+        }
+    }
+
+    companion object {
+        @JvmStatic val clearColor : Vector4f
+            get() = Vector4f(0.086f, 0.173f, 0.380f, 1.0f)
     }
 }
 

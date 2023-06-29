@@ -14,7 +14,7 @@ import org.joml.Vector2i
 import org.joml.Vector3f
 import kotlin.random.Random
 
-class Explosion(val player: Player, val position: Vector3f) : Entity() {
+class Explosion(val player: Player, val position: Vector3f, val shouldPlaySound: Boolean = true) : Entity() {
 
     init {
         transform.position = position
@@ -35,12 +35,14 @@ class Explosion(val player: Player, val position: Vector3f) : Entity() {
     override fun onAddedToScene(scene: Scene) {
         super.onAddedToScene(scene)
 
-        // Since the explosion may end sooner than the audio clip, the
-        // player must manage releasing resources
-        AudioPlayer.playSound(AudioSource(AudioClip("/audio/sounds/boom.ogg")).apply {
-            pitch = 1.0f + 0.1f * Random.nextFloat() - 0.05f
-            gain = 0.8f
-        }, true)
+        if (shouldPlaySound) {
+            // Since the explosion may end sooner than the audio clip, the
+            // player must manage releasing resources
+            AudioPlayer.playSound(AudioSource(AudioClip("/audio/sounds/boom.ogg")).apply {
+                pitch = 1.0f + 0.1f * Random.nextFloat() - 0.05f
+                gain = 0.8f
+            }, true)
+        }
     }
 
     override fun onUpdate(delta: Double) {

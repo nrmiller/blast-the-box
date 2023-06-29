@@ -45,7 +45,12 @@ class Choreographer: UpdateListener, MouseListener, KeyListener {
     }
 
     fun finish() {
-        scenesToEnd.addAll(mutableScenes)
+        scenesToBegin.clear()
+        scenesToEnd.clear()
+        mutableScenes.reversed().forEach { scene ->
+            scene.free()
+            mutableScenes.remove(scene)
+        }
     }
 
     override fun onUpdate(delta: Double) {

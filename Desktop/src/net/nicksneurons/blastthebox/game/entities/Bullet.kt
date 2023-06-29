@@ -6,6 +6,7 @@ import net.nicksneurons.blastthebox.ecs.Scene
 import net.nicksneurons.blastthebox.ecs.components.*
 import net.nicksneurons.blastthebox.graphics.geometry.Cuboid
 import net.nicksneurons.blastthebox.graphics.textures.Texture2D
+import net.nicksneurons.blastthebox.physics.Physics
 import net.nicksneurons.blastthebox.physics.shapes.BoxCollider
 import org.joml.Vector3d
 import org.joml.Vector3f
@@ -50,20 +51,7 @@ class Bullet(val gun: Gun, val strength: Int) : Entity() {
 
     fun checkCollisions() {
         val boxes = scene?.getAllEntities<Box>() ?: emptyList()
-
-        for (box in boxes) {
-            if (box.isMarkedForDeletion)
-                continue
-            if (this.isMarkedForDeletion)
-                break
-
-            val shape = box.getComponent<StaticBody3D>()?.shape
-            if (shape != null) {
-                if (shape.intersectsWith(collider)) {
-                    onCollision(box)
-                }
-            }
-        }
+        Physics.checkCollisionsWith(this, boxes, ::onCollision)
     }
 
     fun onCollision(box: Box) {

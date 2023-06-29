@@ -56,7 +56,7 @@ class Gun(val player: Player): Entity() {
         cooldownRemaining = if (isRapidFire) 0.1 else 0.3
 
         // spawn bullet with velocity
-        var isPiercing: Boolean = true
+        var isPiercing: Boolean = false
         if (hasPierce) {
             isPiercing = true
             piercingBullets--

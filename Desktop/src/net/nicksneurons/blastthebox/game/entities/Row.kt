@@ -2,19 +2,23 @@ package net.nicksneurons.blastthebox.game.entities
 
 import net.nicksneurons.blastthebox.ecs.Entity
 import net.nicksneurons.blastthebox.game.Powerup
+import java.util.*
 
 open class Row() : Entity() {
 
-    protected val boxes = mutableListOf<Box>()
-    protected var powerups = mutableListOf<Powerup>()
+    protected val mutableBoxes = mutableListOf<Box>()
+    val boxes = Collections.unmodifiableCollection(mutableBoxes)
+
+    protected var mutablePowerups = mutableListOf<Powerup>()
+    val powerups = Collections.unmodifiableCollection(mutablePowerups)
 
     override fun free() {
         super.free()
 
-        boxes.reversed().forEach {
+        mutableBoxes.reversed().forEach {
             it.free()
         }
-        powerups.reversed().forEach {
+        mutablePowerups.reversed().forEach {
             it.free()
         }
     }

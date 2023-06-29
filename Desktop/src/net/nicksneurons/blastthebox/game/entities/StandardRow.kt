@@ -41,11 +41,14 @@ class StandardRow(
                 xLoc = k - CubePopulator.FIELD_WIDTH / 2
                 val chance = S.ran.nextFloat()
                 if (chance <= .1f) { //10% chance of spawning a powerup.
-                    powerups.add(scene.addEntity(Powerup(slot = xLoc, type = Game.powerups.spin(S.ran)).also {
-                        it.transform.parent = this.transform
-                    }))
+                    val type = Game.powerups.spin(S.ran)
+                    if (type != null) {
+                        mutablePowerups.add(scene.addEntity(Powerup(slot = xLoc, type = type).also {
+                            it.transform.parent = this.transform
+                        }))
+                    }
                 } else { //create a cube
-                    boxes.add(scene.addEntity(Box.createRandom(slot = xLoc).also {
+                    mutableBoxes.add(scene.addEntity(Box.createRandom(slot = xLoc).also {
                         it.getComponent<Mesh>()!!.renderLayer = 1
                         it.transform.parent = this.transform
                     }))

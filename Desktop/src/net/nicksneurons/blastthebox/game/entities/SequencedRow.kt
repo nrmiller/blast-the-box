@@ -40,7 +40,7 @@ class SequencedRow(
             {
                 xLoc = i - CubePopulator.FIELD_WIDTH / 2
 
-                boxes.add(scene.addEntity(Box.createRandom(slot = xLoc).also {
+                mutableBoxes.add(scene.addEntity(Box.createRandom(slot = xLoc).also {
                     it.getComponent<Mesh>()!!.renderLayer = 1
                     it.transform.parent = this.transform
                 }))
