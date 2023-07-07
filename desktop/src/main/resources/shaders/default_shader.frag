@@ -7,9 +7,12 @@ in vec2 TexCoord;
 
 out vec4 FragColor;
 
+uniform float opacity;
+
 void main()
 {
     vec4 texel = texture(_texture, TexCoord);
+    texel.a = texel.a * opacity;
     FragColor = texel;
 
     // this interpolates between the texel and the vertex color

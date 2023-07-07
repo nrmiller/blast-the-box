@@ -7,6 +7,7 @@ class Mesh(var primitive: Primitive,
            var texture: Texture? = null) : RenderableComponent() {
 
     override fun draw() {
+        super.draw()
         texture?.bind()
         primitive.draw()
     }

@@ -1,5 +1,5 @@
 package net.nicksneurons.blastthebox.game.data
 
-interface HighscoresRepository {
+interface HighscoreRepository {
 
 }

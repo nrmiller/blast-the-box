@@ -24,7 +24,7 @@ class Choreographer: UpdateListener, MouseListener, KeyListener {
      * Convenient syntax to begin a new scene
      * @return the scene of type [T]
      */
-    fun <T: Scene> begin(factory: () -> T): Scene {
+    fun <T: Scene> begin(factory: () -> T): T {
         val scene = factory()
         begin(scene)
         return scene
@@ -58,18 +58,18 @@ class Choreographer: UpdateListener, MouseListener, KeyListener {
             it.onUpdate(delta)
         }
 
-        for (scene in scenesToEnd) {
+        for (scene in scenesToEnd.reversed()) {
             scene.onSceneEnd()
             scene.free()
             mutableScenes.remove(scene)
+            scenesToEnd.remove(scene)
         }
-        scenesToEnd.clear()
 
-        for (scene in scenesToBegin) {
+        for (scene in scenesToBegin.reversed()) {
             mutableScenes.add(scene)
+            scenesToBegin.remove(scene)
             scene.onSceneBegin()
         }
-        scenesToBegin.clear()
     }
 
     override fun onKeyDown(key: Int, scancode: Int, modifiers: Int) {

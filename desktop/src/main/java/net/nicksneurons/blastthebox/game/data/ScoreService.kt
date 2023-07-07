@@ -4,18 +4,18 @@ import io.reactivex.rxjava3.core.Observable
 
 interface ScoreService {
 
-    fun addScore(amount: Int)
+    fun addScore(amount: Float)
 
-    fun addBonusScore(amount: Int)
+    fun addBonusScore(amount: Float)
 
     fun scoreUpdates() : Observable<ScoreEvent>
 
-    fun getCurrentScore() : Int
+    fun getCurrentScore() : Float
 
     fun resetScore()
 }
 
 open class ScoreEvent() { }
-open class ScoreUpdatedEvent(val amount : Int) : ScoreEvent() { }
-class BonusScoreEvent(amount : Int) : ScoreUpdatedEvent(amount) { }
+open class ScoreUpdatedEvent(val amount : Float) : ScoreEvent() { }
+class BonusScoreEvent(amount : Float) : ScoreUpdatedEvent(amount) { }
 class ScoreResetEvent() : ScoreEvent()

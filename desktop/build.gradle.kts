@@ -1,10 +1,11 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.archivesName
+import org.apache.tools.ant.taskdefs.condition.Os
 
 plugins {
     id("blast_the_box.kotlin-application-conventions")
     id("blast_the_box.lwjgl-conventions")
     id("edu.sc.seis.launch4j") version "3.0.3"
     kotlin("jvm")
+    kotlin("kapt")
 
     application
 }
@@ -22,7 +23,11 @@ repositories {
 }
 
 dependencies {
+
     implementation("io.reactivex.rxjava3:rxkotlin:3.0.1")
+
+    implementation("com.google.dagger:dagger:2.46.1")
+    kapt("com.google.dagger:dagger-compiler:2.46.1")
 
     implementation(project(":fractal-dungeon:Tools"))
 }
@@ -30,6 +35,11 @@ dependencies {
 application {
     // Define the main class for the application.
     mainClass.set(_mainClassName)
+
+    if (Os.isFamily(Os.FAMILY_MAC)) {
+        // If running on macOS, need the application to run on the main thread of the process.
+        applicationDefaultJvmArgs = listOf("-XstartOnFirstThread")
+    }
 }
 
 

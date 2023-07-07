@@ -90,6 +90,7 @@ class SpriteAnimation(
     }
 
     override fun draw() {
+        super.draw()
         textureAtlas.bind()
         primitive.draw()
     }

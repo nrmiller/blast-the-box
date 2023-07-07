@@ -9,9 +9,11 @@ import org.joml.Matrix4f
 import org.joml.Vector2i
 import org.lwjgl.glfw.GLFW.GLFW_KEY_F3
 import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL20.*
 import org.lwjgl.opengl.GL33
 import org.lwjgl.system.MemoryUtil
 import java.util.*
+import kotlin.Comparator
 
 open class Scene() : GameObject() {
     var name: String? = null
@@ -27,6 +29,9 @@ open class Scene() : GameObject() {
 
     var renderLayer: Int = 0
     var viewport: Viewport = Viewport.DEFAULT
+
+    var ySortingEnabled = false
+    var ySortMode = SortMode.Descending
 
     private val matrixBuffer = MemoryUtil.memAllocFloat(16)
 
@@ -115,16 +120,25 @@ open class Scene() : GameObject() {
         projectionMatrix.mul(viewMatrix, projViewMatrix)
         val invProjViewMatrix = camera.createInverseProjectionViewMatrix()
 
-        val renderables = entities.flatMap { it.getAllComponents<RenderableComponent>() }
+        val renderables = entities.filter { it.isVisible }.flatMap { it.getAllComponents<RenderableComponent>() }
 
         // we need to transform the entity to projection-view space before we can sort,
         // effectively this sorts against the distance from the camera.
-        val zOrderedRenderables = renderables.sortedBy {
+        var sortedRenderables = renderables.sortedBy {
 
             invProjViewMatrix.transform(it.entity!!.transform.getWorldPosition()).z
-        }.sortedBy { it.renderLayer }
+        }
 
-        for (renderable in zOrderedRenderables) {
+        if (ySortingEnabled) {
+            sortedRenderables = when (ySortMode) {
+                SortMode.Ascending -> sortedRenderables.sortedBy { it.entity!!.transform.position.y }
+                SortMode.Descending -> sortedRenderables.sortedByDescending { it.entity!!.transform.position.y }
+            }
+        }
+
+        sortedRenderables = sortedRenderables.sortedBy { it.renderLayer }
+
+        for (renderable in sortedRenderables) {
             val transform = renderable.entity!!.transform
 
             val material = renderable.material
@@ -142,6 +156,8 @@ open class Scene() : GameObject() {
             transform.getWorldTransform().get(matrixBuffer)
             GL33.glUniformMatrix4fv(GL33.glGetUniformLocation(material.program.id, "model"), false, matrixBuffer)
 
+            val program = glGetInteger(GL_CURRENT_PROGRAM)
+            glUniform1f(glGetUniformLocation(program, "opacity"), renderable.entity!!.opacity)
             renderable.draw()
         }
     }
@@ -154,12 +170,21 @@ open class Scene() : GameObject() {
 
         // we need to transform the entity to projection-view space before we can sort,
         // effectively this sorts against the distance from the camera.
-        val zOrderedRenderables = renderables.sortedBy {
+        var sortedRenderables = renderables.sortedBy {
             invProjViewMatrix.transform(it.entity!!.transform.getWorldPosition()).z
-        }.sortedBy { it.renderLayer }
+        }
+
+        if (ySortingEnabled) {
+            sortedRenderables = when (ySortMode) {
+                SortMode.Ascending -> sortedRenderables.sortedBy { it.entity!!.transform.position.y }
+                SortMode.Descending -> sortedRenderables.sortedByDescending { it.entity!!.transform.position.y }
+            }
+        }
+
+        sortedRenderables = sortedRenderables.sortedBy { it.renderLayer }
 
         println("=== START OF BATCH ===")
-        for (renderable in zOrderedRenderables) {
+        for (renderable in sortedRenderables) {
             val entity = renderable.entity!!
 
             val entityName = entity.name ?: entity.javaClass.kotlin.simpleName
@@ -259,4 +284,9 @@ open class Scene() : GameObject() {
         finishScene()
         choreographer.begin(nextScene)
     }
+}
+
+enum class SortMode {
+    Ascending,
+    Descending,
 }

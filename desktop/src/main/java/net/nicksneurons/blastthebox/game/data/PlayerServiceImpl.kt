@@ -3,23 +3,17 @@ package net.nicksneurons.blastthebox.game.data
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.PublishSubject
 import net.nicksneurons.blastthebox.game.entities.Player
+import javax.inject.Inject
 
-class PlayerServiceImpl : PlayerService {
-
-    private val subject : PublishSubject<PlayerEvent> = PublishSubject.create()
+class PlayerServiceImpl @Inject constructor() : PlayerService {
 
     private var player : Player? = null
 
-    override fun watchPlayer(player: Player): Observable<PlayerEvent> {
+    override fun setPlayer(player: Player) {
         this.player = player
-        return subject
     }
 
     override fun getPlayer(): Player? {
         return player
-    }
-
-    fun free() {
-        subject.onComplete()
     }
 }

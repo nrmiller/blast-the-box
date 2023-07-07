@@ -15,7 +15,14 @@ open class Entity(var name: String? = null) : GameObject() {
     private val mutableComponents = mutableListOf<Component>()
     val components: List<Component> = Collections.unmodifiableList(mutableComponents)
 
+    var isVisible: Boolean = true
+
+    // Global opacity for the entity, requires the associated shaders to support
+    var opacity: Float = 1.0f
+
     var isMarkedForDeletion: Boolean = false
+        private set
+
     fun queueFree() {
         isMarkedForDeletion = true
     }

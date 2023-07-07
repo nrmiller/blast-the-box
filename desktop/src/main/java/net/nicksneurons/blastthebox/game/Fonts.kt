@@ -25,7 +25,7 @@ object Fonts {
 
         yellowNumbers = FontLoader.loadFont(BitmapFont(
                 "01234+56789%".toList(),
-                TextureAtlas("/textures/numbers.png", Vector2i(64, 64))))
+                TextureAtlas("/textures/numbers_yellow.png", Vector2i(64, 64))))
     }
 
     @JvmStatic fun freeFonts() {

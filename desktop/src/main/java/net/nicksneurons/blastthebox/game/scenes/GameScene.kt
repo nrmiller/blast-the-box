@@ -1,6 +1,5 @@
 package net.nicksneurons.blastthebox.game.scenes
 
-import miller.opengl.Point3d
 import miller.util.jomlextensions.toVector3f
 import net.nicksneurons.blastthebox.audio.AudioClip
 import net.nicksneurons.blastthebox.audio.AudioPlayer
@@ -10,6 +9,9 @@ import net.nicksneurons.blastthebox.ecs.Scene
 import net.nicksneurons.blastthebox.ecs.components.Mesh
 import net.nicksneurons.blastthebox.game.Powerup
 import net.nicksneurons.blastthebox.game.PowerupType
+import net.nicksneurons.blastthebox.game.data.HighscoreRepository
+import net.nicksneurons.blastthebox.game.data.PlayerService
+import net.nicksneurons.blastthebox.game.data.ScoreService
 import net.nicksneurons.blastthebox.game.entities.*
 import net.nicksneurons.blastthebox.game.sequencing.RowSequencer
 import net.nicksneurons.blastthebox.physics.Physics
@@ -19,12 +21,19 @@ import org.joml.Vector3f
 import org.joml.Vector4f
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL11.glClearColor
-import kotlin.math.abs
+import javax.inject.Inject
 import kotlin.math.cos
 import kotlin.math.sign
 import kotlin.math.sin
 
 class GameScene: Scene() {
+
+    @Inject
+    lateinit var highscoreRepository : HighscoreRepository
+    @Inject
+    lateinit var scoreService: ScoreService
+    @Inject
+    lateinit var playerService: PlayerService
 
     val stopwatchTracker = StopwatchTracker()
 
@@ -33,14 +42,24 @@ class GameScene: Scene() {
     val floors = arrayListOf<FloorTile>()
     val rows = mutableListOf<Row>()
 
-    val eyeHeight = 1.2f//0.7f
-    val strafeSpeed = 10.0f // m/s
+    val scoreSpeed = 100.0f // 100 pts per second
 
     lateinit var player: Player
+    lateinit var hudScene: HUDScene
 
     private val sequencer = RowSequencer()
 
     override fun onSceneBegin() {
+        super.onSceneBegin()
+
+        Engine.instance.di.inject(this)
+
+        player = addEntity(Player())
+
+        // Before showing the HUD, set the player
+        playerService.setPlayer(player)
+
+        hudScene = choreographer.begin(::HUDScene)
 
         bgMusic = AudioSource(AudioClip("/audio/tracks/loop_one.ogg")).apply {
             pitch = 1.0f
@@ -49,7 +68,7 @@ class GameScene: Scene() {
         AudioPlayer.loopSound(bgMusic)
 
         (camera as Camera3D).apply {
-            setPosition(0.0f, eyeHeight, 0.0f)
+            setPosition(0.0f, player.eyeHeight, 0.0f)
             setFocusPoint(0.0f, 0f, -10.0f)
             moveBackward(0.0f)
             fov = 45.0f
@@ -68,27 +87,16 @@ class GameScene: Scene() {
             transform.position = Vector3f(-10.0f, 0.0f, -60.0f)
         }))
 
-        player = addEntity(Player())
     }
 
     private var accumulatedDistance: Double = 0.0
 
-    var acceleration = 60.0f
-    var friction = 80.0f
-    var xVelocity = Vector3f(0.0f)
-
     override fun onUpdate(delta: Double) {
         super.onUpdate(delta)
 
-        var xInput = 0.0f
-        if (glfwGetKey(Engine.instance.window.handle, GLFW_KEY_LEFT) == GLFW_TRUE) {
-            xInput -= 1.0f
-        }
-        if (glfwGetKey(Engine.instance.window.handle, GLFW_KEY_RIGHT) == GLFW_TRUE) {
-            xInput += 1.0f
-        }
         if (glfwGetKey(Engine.instance.window.handle, GLFW_KEY_ESCAPE) == GLFW_TRUE) {
             Engine.instance.choreographer.end(this)
+            Engine.instance.choreographer.end(hudScene)
             Engine.instance.choreographer.begin(::MainScreenScene)
             return
         }
@@ -97,23 +105,16 @@ class GameScene: Scene() {
         }
 
 
-        val targetSpeed = xInput * strafeSpeed
-        if (abs(xInput) > Float.MIN_VALUE) {
-            xVelocity = xVelocity.moveToward(Vector3f(targetSpeed, 0.0f, 0.0f), delta * acceleration)
-        } else {
-            xVelocity = xVelocity.moveToward(Vector3f(0.0f), delta * friction)
-        }
-
-        val bobAngle = Math.toRadians(3.0).toFloat() * (xVelocity.length() / strafeSpeed) * (xVelocity.x.sign)
+        val bobAngle = Math.toRadians(3.0).toFloat() * (player.xVelocity.length() / player.strafeSpeed) * (player.xVelocity.x.sign)
 
         (camera as Camera3D).apply {
-            strafeRight((delta * xVelocity.x).toFloat())
+            setPosition(player.transform.position.x, position.y, position.z)
+            setFocusPoint(player.transform.position.x, lookAt.y, lookAt.z)
 
             val angleOffUp = (Math.PI.toFloat() / 2.0f) - bobAngle.toDouble()
             val targetUp = Vector3f(cos(angleOffUp).toFloat(), sin(angleOffUp).toFloat(), 0.0f)
             setUpVector(targetUp.x, targetUp.y, targetUp.z)
         }
-        player.transform.position = (camera as Camera3D).position
 
 
         // to spawn a row at every meter
@@ -130,6 +131,7 @@ class GameScene: Scene() {
         }
 
         moveCloser(delta.toFloat() * player.movementSpeed)
+        scoreService.addScore(delta.toFloat() * scoreSpeed)
 
         stopwatchTracker.onUpdate(delta)
         glClearColor(stopwatchTracker.clearColor.x, stopwatchTracker.clearColor.y, stopwatchTracker.clearColor.z, stopwatchTracker.clearColor.w)
@@ -195,10 +197,16 @@ class GameScene: Scene() {
 
                 val position = box.transform.getWorldPosition().toVector3f()
                 spawnExplosion(Vector3f(position.x, position.y, position.z + 1.0f))
-                tallies[box.type] = (tallies[box.type] ?: 0) + 1
+                tallies[box.initialType] = (tallies[box.initialType] ?: 0) + 1
                 box.queueFree()
             }
         }
+
+        val points = tallies.entries.sumOf {
+            it.key.points * it.value
+        }
+
+        scoreService.addBonusScore(points.toFloat())
     }
 
     private fun spawnExplosion(position: Vector3f) {
@@ -238,13 +246,6 @@ class GameScene: Scene() {
         super.onSceneEnd()
 
         AudioPlayer.stopSound(bgMusic)
-    }
-
-    fun Vector3f.moveToward(to: Vector3f, delta: Double): Vector3f {
-        val diff = Vector3f()
-        to.sub(this, diff)
-
-        return if (diff.length() <= delta || diff.length() < 0.00001) to else Vector3f().add(this).add(diff.normalize().mul(delta.toFloat()))
     }
 
     override fun onKeyDown(key: Int, scancode: Int, modifiers: Int) {

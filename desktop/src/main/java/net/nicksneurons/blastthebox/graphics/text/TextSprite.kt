@@ -77,6 +77,7 @@ class TextSprite(val fontId: Int) : RenderableComponent() {
     }
 
     override fun draw() {
+        super.draw()
         meshes.forEach {
             it.draw()
         }

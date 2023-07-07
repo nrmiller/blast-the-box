@@ -4,6 +4,8 @@ import com.fractaldungeon.tools.*
 import com.fractaldungeon.tools.input.KeyListener
 import com.fractaldungeon.tools.input.MouseListener
 import net.nicksneurons.blastthebox.audio.AudioPlayer
+import net.nicksneurons.blastthebox.client.dagger.AppComponent
+import net.nicksneurons.blastthebox.client.dagger.DaggerAppComponent
 import net.nicksneurons.blastthebox.ecs.Choreographer
 import net.nicksneurons.blastthebox.game.Fonts
 import org.joml.Vector2i
@@ -19,6 +21,8 @@ import java.nio.IntBuffer
 
 
 class Engine private constructor(): GLEventListener, UpdateListener, MouseListener, KeyListener {
+
+    val di: AppComponent = DaggerAppComponent.create()
 
     private val device: Long
     val choreographer = Choreographer()
@@ -101,6 +105,7 @@ class Engine private constructor(): GLEventListener, UpdateListener, MouseListen
         Fonts.loadFonts()
 
         glEnable(GL_DEPTH_TEST)
+        glDepthFunc(GL_LEQUAL)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
