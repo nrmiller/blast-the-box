@@ -9,6 +9,7 @@ import net.nicksneurons.blastthebox.game.Fonts
 import net.nicksneurons.blastthebox.game.data.*
 import net.nicksneurons.blastthebox.game.entities.BonusScoreEntity
 import net.nicksneurons.blastthebox.game.entities.HealthHUD
+import net.nicksneurons.blastthebox.game.entities.StatusHUD
 import net.nicksneurons.blastthebox.graphics.text.TextSprite
 import net.nicksneurons.blastthebox.utils.Camera2D
 import org.joml.Vector3f
@@ -28,6 +29,7 @@ class HUDScene : Scene() {
     lateinit var scoreSprite: TextSprite
     lateinit var scoreEntity: Entity
     lateinit var healthHUDEntity : HealthHUD
+    lateinit var statusHUDEntity: StatusHUD
 
     override fun onSceneBegin() {
         super.onSceneBegin()
@@ -42,7 +44,10 @@ class HUDScene : Scene() {
             addComponent(scoreSprite)
         })
 
-        healthHUDEntity = addEntity(HealthHUD(playerService.getPlayer()!!))
+        val player = playerService.getPlayer()!!
+
+        healthHUDEntity = addEntity(HealthHUD(player))
+        statusHUDEntity = addEntity(StatusHUD(player))
 
         subscription = scoreService.scoreUpdates().subscribe {
             if (it is BonusScoreEvent) {
@@ -71,6 +76,8 @@ class HUDScene : Scene() {
         }
 
         healthHUDEntity.transform.position = Vector3f((width - healthHUDEntity.component.desiredWidth).toFloat(), (height - healthHUDEntity.component.desiredHeight).toFloat(), 1.0f)
+
+        statusHUDEntity.transform.position = Vector3f(0.0f, 0.0f, 1.0f)
 
 
         // Since we are mutating the entities in this scene, we should call this last.

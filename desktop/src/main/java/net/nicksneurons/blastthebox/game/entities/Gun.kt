@@ -23,7 +23,7 @@ class Gun(val player: Player): Entity() {
         transform.position = Vector3f(0.0f, -0.7f, 0.0f) // move down from eye height
     }
 
-    var ammo = 100000 // 5
+    var ammo = 10
     var piercingBullets = 0
     private val hasPierce : Boolean
         get() = piercingBullets > 0
@@ -42,7 +42,34 @@ class Gun(val player: Player): Entity() {
         }
     }
 
-    private var isRapidFire = true
+    var unlimitedAmmo: Boolean = false
+        private set
+
+    private var unlimitedAmmoTimeRemaining = 0.0
+    fun beginUnlimitedAmmo() {
+        unlimitedAmmo = true
+        unlimitedAmmoTimeRemaining = 15.0
+    }
+
+    fun endUnlimitedAmmo() {
+        unlimitedAmmo = false
+        unlimitedAmmoTimeRemaining = 0.0
+    }
+
+    var isRapidFire = false
+        private set
+    private var rapidFireTimeRemaining = 0.0
+
+    fun beginRapidFire() {
+        isRapidFire = true
+        rapidFireTimeRemaining = 30.0
+    }
+
+    fun endRapidFire() {
+        isRapidFire = false
+        rapidFireTimeRemaining = 0.0
+    }
+
     private var isOnCooldown = false
     private var cooldownRemaining =  if (isRapidFire) 0.1 else 0.3 // seconds
 
@@ -59,7 +86,9 @@ class Gun(val player: Player): Entity() {
         var isPiercing: Boolean = false
         if (hasPierce) {
             isPiercing = true
-            piercingBullets--
+            if(!unlimitedAmmo) {
+                piercingBullets--
+            }
         }
 
         AudioPlayer.playSound(fire)
@@ -70,7 +99,9 @@ class Gun(val player: Player): Entity() {
         }
 
         scene?.addEntity(bullet)
-        ammo--
+        if (!unlimitedAmmo) {
+            ammo--
+        }
 
         if (player.hasTripleFire) {
             if (ammo > 0) {
@@ -82,7 +113,9 @@ class Gun(val player: Player): Entity() {
                     it.velocity = velocity.normalize(bulletSpeed)
                 }
                 scene?.addEntity(b2)
-                ammo -= 1
+                if (!unlimitedAmmo) {
+                    ammo -= 1
+                }
             }
             if (ammo > 0) {
                 val b3 = Bullet(this, player.strength).also {
@@ -93,7 +126,9 @@ class Gun(val player: Player): Entity() {
                     it.velocity = velocity.normalize(bulletSpeed)
                 }
                 scene?.addEntity(b3)
-                ammo -= 1
+                if (!unlimitedAmmo) {
+                    ammo -= 1
+                }
             }
         }
     }
@@ -109,6 +144,20 @@ class Gun(val player: Player): Entity() {
             cooldownRemaining -= delta
             if (cooldownRemaining <= 0.0) {
                 isOnCooldown = false
+            }
+        }
+
+        if (unlimitedAmmo) {
+            unlimitedAmmoTimeRemaining -= delta
+            if (unlimitedAmmoTimeRemaining <= 0.0) {
+                endUnlimitedAmmo()
+            }
+        }
+
+        if (isRapidFire) {
+            rapidFireTimeRemaining -= delta
+            if (rapidFireTimeRemaining <= 0.0) {
+                endRapidFire()
             }
         }
     }

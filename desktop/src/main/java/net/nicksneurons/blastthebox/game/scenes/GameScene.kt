@@ -182,6 +182,14 @@ class GameScene: Scene() {
             PowerupType.STOPWATCH -> {
                 performStopwatch()
             }
+            PowerupType.UNLIMITED_AMMO -> {
+                AudioPlayer.playSound(AudioSource(AudioClip("/audio/sounds/triple.ogg")), true)
+                player.gun.beginUnlimitedAmmo()
+            }
+            PowerupType.RAPID_FIRE -> {
+                AudioPlayer.playSound(AudioSource(AudioClip("/audio/sounds/triple.ogg")), true)
+                player.gun.beginRapidFire()
+            }
             else -> { }
         }
         powerup.queueFree()

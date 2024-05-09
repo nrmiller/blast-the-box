@@ -32,7 +32,9 @@ enum class PowerupType(val path: String) {
     AMMO("/textures/powerups/powerup_ammo.png"),
     STRENGTH_ONE("/textures/powerups/powerup_strength1.png"),
     STRENGTH_TWO("/textures/powerups/powerup_strength2.png"),
-    PIERCE("/textures/powerups/powerup_pierce.png");
+    PIERCE("/textures/powerups/powerup_pierce.png"),
+    UNLIMITED_AMMO("/textures/powerups/powerup_unlimited_ammo.png"),
+    RAPID_FIRE("/textures/powerups/powerup_rapid_fire.png");
 
     var textureId: Int = 0
 }

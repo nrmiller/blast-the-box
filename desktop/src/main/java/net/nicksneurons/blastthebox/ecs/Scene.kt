@@ -120,7 +120,9 @@ open class Scene() : GameObject() {
         projectionMatrix.mul(viewMatrix, projViewMatrix)
         val invProjViewMatrix = camera.createInverseProjectionViewMatrix()
 
-        val renderables = entities.filter { it.isVisible }.flatMap { it.getAllComponents<RenderableComponent>() }
+        val renderables = entities.filter {
+            allAncestorsVisible(it)
+        }.flatMap { it.getAllComponents<RenderableComponent>() }
 
         // we need to transform the entity to projection-view space before we can sort,
         // effectively this sorts against the distance from the camera.
@@ -160,6 +162,15 @@ open class Scene() : GameObject() {
             glUniform1f(glGetUniformLocation(program, "opacity"), renderable.entity!!.opacity)
             renderable.draw()
         }
+    }
+
+    private fun allAncestorsVisible(entity: Entity): Boolean {
+        val parent = entity.transform.parent?.entity?.get()
+
+        return if (parent == null)
+            entity.isVisible
+        else
+            entity.isVisible && allAncestorsVisible(parent)
     }
 
     private fun printRenderBatch() {
