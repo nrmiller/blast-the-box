@@ -16,6 +16,8 @@ To create an exe, execute the following Gradle task:
 
     gradlew.bat desktop:createExe
 
+*As of now, only the desktop version can be built and run.
+
 ## Common Issues
 
 > Execution failed for task ':buildSrc:compileKotlin'.
