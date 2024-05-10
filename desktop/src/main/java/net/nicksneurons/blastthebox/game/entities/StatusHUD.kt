@@ -1,6 +1,6 @@
 package net.nicksneurons.blastthebox.game.entities
 
-import com.fractaldungeon.tools.UpdateListener
+import net.nicksneurons.tools.UpdateListener
 import org.joml.*
 import net.nicksneurons.blastthebox.ecs.Entity
 import net.nicksneurons.blastthebox.ecs.components.Mesh

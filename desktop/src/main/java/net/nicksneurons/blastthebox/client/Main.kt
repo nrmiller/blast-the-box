@@ -1,7 +1,7 @@
 package net.nicksneurons.blastthebox.client
 
-import com.fractaldungeon.tools.GLWindow
-import com.fractaldungeon.tools.GLWindowListener
+import net.nicksneurons.tools.GLWindow
+import net.nicksneurons.tools.GLWindowListener
 import net.nicksneurons.blastthebox.ecs.Viewport
 import net.nicksneurons.blastthebox.game.scenes.MainScreenScene
 import org.lwjgl.system.Configuration

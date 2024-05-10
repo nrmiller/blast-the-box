@@ -29,7 +29,7 @@ dependencies {
     implementation("com.google.dagger:dagger:2.46.1")
     kapt("com.google.dagger:dagger-compiler:2.46.1")
 
-    implementation(project(":fractal-dungeon:Tools"))
+    implementation(project(":FDEngine:Tools"))
 }
 
 application {

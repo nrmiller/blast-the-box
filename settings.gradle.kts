@@ -24,4 +24,4 @@ plugins {
 }
 
 rootProject.name = "blast_the_box"
-include("desktop", ":fractal-dungeon:Tools")
+include("desktop", ":FDEngine:Tools")

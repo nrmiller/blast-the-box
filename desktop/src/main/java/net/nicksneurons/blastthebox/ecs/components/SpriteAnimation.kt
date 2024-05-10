@@ -1,6 +1,6 @@
 package net.nicksneurons.blastthebox.ecs.components
 
-import com.fractaldungeon.tools.UpdateListener
+import net.nicksneurons.tools.UpdateListener
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.PublishSubject
 import io.reactivex.rxjava3.subjects.Subject

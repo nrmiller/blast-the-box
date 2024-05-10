@@ -1,0 +1,3 @@
+[submodule "FDEngine"]
+	path = FDEngine
+	url = https://github.com/nrmiller/FDEngine.git

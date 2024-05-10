@@ -1,8 +1,8 @@
 package net.nicksneurons.blastthebox.client
 
-import com.fractaldungeon.tools.*
-import com.fractaldungeon.tools.input.KeyListener
-import com.fractaldungeon.tools.input.MouseListener
+import net.nicksneurons.tools.*
+import net.nicksneurons.tools.input.KeyListener
+import net.nicksneurons.tools.input.MouseListener
 import net.nicksneurons.blastthebox.audio.AudioPlayer
 import net.nicksneurons.blastthebox.client.dagger.AppComponent
 import net.nicksneurons.blastthebox.client.dagger.DaggerAppComponent

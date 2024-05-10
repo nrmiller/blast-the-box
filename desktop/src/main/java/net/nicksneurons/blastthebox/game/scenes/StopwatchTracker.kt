@@ -1,6 +1,6 @@
 package net.nicksneurons.blastthebox.game.scenes
 
-import com.fractaldungeon.tools.UpdateListener
+import net.nicksneurons.tools.UpdateListener
 import org.joml.Vector4f
 
 class StopwatchTracker : UpdateListener {

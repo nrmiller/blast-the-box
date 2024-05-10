@@ -1,8 +1,8 @@
 package net.nicksneurons.blastthebox.ecs
 
-import com.fractaldungeon.tools.UpdateListener
-import com.fractaldungeon.tools.input.KeyListener
-import com.fractaldungeon.tools.input.MouseListener
+import net.nicksneurons.tools.UpdateListener
+import net.nicksneurons.tools.input.KeyListener
+import net.nicksneurons.tools.input.MouseListener
 
 /**
  * A GameObject is anything that can receive basic events from the engine.

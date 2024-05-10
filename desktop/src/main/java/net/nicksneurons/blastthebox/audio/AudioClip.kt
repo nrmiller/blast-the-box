@@ -8,8 +8,7 @@ import org.lwjgl.system.MemoryUtil
 import org.lwjgl.system.MemoryUtil.NULL
 
 
-class AudioClip(
-        val resourcePath: String) {
+class AudioClip(val resourcePath: String) {
 
     val bufferId: Int
 

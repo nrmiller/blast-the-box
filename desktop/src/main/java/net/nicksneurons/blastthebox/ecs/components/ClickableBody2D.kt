@@ -3,7 +3,7 @@ package net.nicksneurons.blastthebox.ecs.components
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.PublishSubject
 import io.reactivex.rxjava3.subjects.Subject
-import com.fractaldungeon.tools.input.MouseListener
+import net.nicksneurons.tools.input.MouseListener
 import miller.util.jomlextensions.*
 import net.nicksneurons.blastthebox.client.input.Mouse
 import net.nicksneurons.blastthebox.ecs.Component
